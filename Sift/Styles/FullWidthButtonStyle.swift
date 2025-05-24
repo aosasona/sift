@@ -15,18 +15,20 @@ struct FullWidthButtonStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
             .font(.body)
-            .foregroundStyle(.white)
+            .foregroundStyle(isEnabled ? .white : .secondary)
             .frame(maxWidth: .infinity)
             .padding(.vertical, 14.0)
             .padding(.horizontal)
             .background(
-                configuration.isPressed ? .accent.opacity(0.8) : .accent
+                isEnabled
+                    ? (configuration.isPressed ? .accent.opacity(0.8) : .accent)
+                    : .gray.opacity(0.5)
             )
             .clipShape(RoundedRectangle(cornerRadius: cornerRadius))
             .overlay(
                 RoundedRectangle(cornerRadius: cornerRadius)
                     .stroke(isEnabled ? .accent : .clear, lineWidth: 0.75)
-                    .brightness(0.2)
+                    .brightness(0.15)
             )
             .sensoryFeedback(.impact, trigger: configuration.isPressed)
     }

@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		EA2204FD2DE1F60E00BA85A8 /* SharingGRDB in Frameworks */ = {isa = PBXBuildFile; productRef = EA2204FC2DE1F60E00BA85A8 /* SharingGRDB */; };
+		EA2205102DE23CB400BA85A8 /* Flow in Frameworks */ = {isa = PBXBuildFile; productRef = EA22050F2DE23CB400BA85A8 /* Flow */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -27,6 +28,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				EA2205102DE23CB400BA85A8 /* Flow in Frameworks */,
 				EA2204FD2DE1F60E00BA85A8 /* SharingGRDB in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -71,6 +73,7 @@
 			name = Sift;
 			packageProductDependencies = (
 				EA2204FC2DE1F60E00BA85A8 /* SharingGRDB */,
+				EA22050F2DE23CB400BA85A8 /* Flow */,
 			);
 			productName = Sift;
 			productReference = EA2BB9652DDFEFF400E3829F /* Sift.app */;
@@ -102,6 +105,7 @@
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
 				EA2204FB2DE1F60E00BA85A8 /* XCRemoteSwiftPackageReference "sharing-grdb" */,
+				EA22050E2DE23CB400BA85A8 /* XCRemoteSwiftPackageReference "SwiftUI-Flow" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = EA2BB9662DDFEFF400E3829F /* Products */;
@@ -345,6 +349,14 @@
 				minimumVersion = 0.3.0;
 			};
 		};
+		EA22050E2DE23CB400BA85A8 /* XCRemoteSwiftPackageReference "SwiftUI-Flow" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/tevelee/SwiftUI-Flow";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 3.0.2;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -352,6 +364,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = EA2204FB2DE1F60E00BA85A8 /* XCRemoteSwiftPackageReference "sharing-grdb" */;
 			productName = SharingGRDB;
+		};
+		EA22050F2DE23CB400BA85A8 /* Flow */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = EA22050E2DE23CB400BA85A8 /* XCRemoteSwiftPackageReference "SwiftUI-Flow" */;
+			productName = Flow;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
