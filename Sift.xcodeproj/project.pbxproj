@@ -7,7 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		EA2204E02DE158BA00BA85A8 /* GRDB in Frameworks */ = {isa = PBXBuildFile; productRef = EA2204DF2DE158BA00BA85A8 /* GRDB */; };
+		EA2204FD2DE1F60E00BA85A8 /* SharingGRDB in Frameworks */ = {isa = PBXBuildFile; productRef = EA2204FC2DE1F60E00BA85A8 /* SharingGRDB */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -27,7 +27,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				EA2204E02DE158BA00BA85A8 /* GRDB in Frameworks */,
+				EA2204FD2DE1F60E00BA85A8 /* SharingGRDB in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -70,7 +70,7 @@
 			);
 			name = Sift;
 			packageProductDependencies = (
-				EA2204DF2DE158BA00BA85A8 /* GRDB */,
+				EA2204FC2DE1F60E00BA85A8 /* SharingGRDB */,
 			);
 			productName = Sift;
 			productReference = EA2BB9652DDFEFF400E3829F /* Sift.app */;
@@ -101,7 +101,7 @@
 			mainGroup = EA2BB95C2DDFEFF400E3829F;
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
-				EA2204DE2DE158BA00BA85A8 /* XCRemoteSwiftPackageReference "GRDB.swift" */,
+				EA2204FB2DE1F60E00BA85A8 /* XCRemoteSwiftPackageReference "sharing-grdb" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = EA2BB9662DDFEFF400E3829F /* Products */;
@@ -337,21 +337,21 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
-		EA2204DE2DE158BA00BA85A8 /* XCRemoteSwiftPackageReference "GRDB.swift" */ = {
+		EA2204FB2DE1F60E00BA85A8 /* XCRemoteSwiftPackageReference "sharing-grdb" */ = {
 			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/groue/GRDB.swift.git";
+			repositoryURL = "https://github.com/pointfreeco/sharing-grdb";
 			requirement = {
-				branch = master;
-				kind = branch;
+				kind = upToNextMajorVersion;
+				minimumVersion = 0.3.0;
 			};
 		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		EA2204DF2DE158BA00BA85A8 /* GRDB */ = {
+		EA2204FC2DE1F60E00BA85A8 /* SharingGRDB */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = EA2204DE2DE158BA00BA85A8 /* XCRemoteSwiftPackageReference "GRDB.swift" */;
-			productName = GRDB;
+			package = EA2204FB2DE1F60E00BA85A8 /* XCRemoteSwiftPackageReference "sharing-grdb" */;
+			productName = SharingGRDB;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

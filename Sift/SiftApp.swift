@@ -6,9 +6,16 @@
 //
 
 import SwiftUI
+import SharingGRDB
 
 @main
 struct SiftApp: App {
+    init() {
+        try! prepareDependencies {
+            $0.defaultDatabase = try AppDatabase.init().getDatabase()
+        }
+    }
+    
     var body: some Scene {
         WindowGroup {
             ContentView()
