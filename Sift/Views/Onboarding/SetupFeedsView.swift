@@ -154,7 +154,7 @@ struct SetupFeedsView: View {
 
                             VStack {
                                 Text(feed.title)
-                                    .font(.headline)
+                                    .font(.title3)
                                     .foregroundStyle(.primary)
                                     .lineLimit(1)
                                     .frame(maxWidth: .infinity, alignment: .leading)

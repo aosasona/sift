@@ -42,7 +42,7 @@ struct SelectPreferredCategoriesView: View {
                     .frame(width: 10, height: 10)
                     .padding(.leading, 4)
 
-                Text("\(selectedCategories.count) of \(MaxPreferredCategories)")
+                Text("\(selectedCategories.count) out of \(MaxPreferredCategories)")
                     .foregroundStyle(.secondary)
             }
 
@@ -56,6 +56,7 @@ struct SelectPreferredCategoriesView: View {
                 HFlow(spacing: 10) {
                     ForEach(categories, id: \.self) { category in
                         Button(action: {
+                            UIImpactFeedbackGenerator(style: .light).impactOccurred()
                             if selectedCategories.contains(category.name) {
                                 selectedCategories.remove(category.name)
                             } else {
@@ -76,9 +77,15 @@ struct SelectPreferredCategoriesView: View {
                                     selectedCategories.contains(category.name)
                                         ? .white : .secondary
                                 )
-                                .cornerRadius(20)
+                                .clipShape(Capsule())
                         }
                         .buttonStyle(.plain)
+                        .animation(
+                            .easeInOut(duration: 0.075),
+                            value: selectedCategories.contains(category.name)
+                        )
+                        .accessibilityIdentifier("category-\(category.name)")
+                        .accessibilityAddTraits(selectedCategories.contains(category.name) ? .isSelected : [])
                     }
                 }
             }
