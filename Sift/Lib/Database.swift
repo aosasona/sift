@@ -42,7 +42,7 @@ public final class AppDatabase: Sendable {
         try migrator.migrate(db)
 
         // Load label map
-        //        try importLabelSets(db: db)
+        try importLabelSets(db)
     }
 
     public func getDatabase() -> any DatabaseWriter {
@@ -97,7 +97,7 @@ extension AppDatabase {
             // LabelSets
             try db.create(table: "label_sets") { t in
                 t.column("version", .integer).primaryKey().unique().notNull().defaults(to: 1)  // Version of the label set
-                t.column("labelsJson", .text).notNull()  // JSON array of labels
+                t.column("labelsJson", .text).notNull().unique(onConflict: .ignore)  // JSON representation of the labels
                 t.column("createdAt", .datetime).notNull().defaults(sql: "CURRENT_TIMESTAMP")
             }
 

@@ -10,16 +10,16 @@ import SharingGRDB
 
 @Table("preferred_categories")
 struct PreferredCategory: Hashable, Identifiable {
-    let id: Int
+    var id: Int?
     var category: String
 
     @Column(as: Date.ISO8601Representation?.self)
-    var createdAt: Date
+    var createdAt: Date? = Date()
 }
 
 @Table("feeds")
 struct Feed: Hashable, Identifiable  {
-    let id: Int
+    var id: Int?
     var title: String
     var url: String
     var description: String?
@@ -28,12 +28,12 @@ struct Feed: Hashable, Identifiable  {
     var imageURL: String?
     
     @Column(as: Date.ISO8601Representation?.self)
-    var addedAt: Date
+    var addedAt: Date? = Date()
 }
 
 @Table("articles")
 struct Article: Hashable, Identifiable {
-    let id: Int
+    var id: Int?
     var title: String
     var url: String
     var description: String?
@@ -42,11 +42,11 @@ struct Article: Hashable, Identifiable {
     var textContent: String?
     var summary: String?
     
-    @Column(as: Date.ISO8601Representation?.self)
+    @Column(as: Date.ISO8601Representation.self)
     var publishedAt: Date
     
     @Column(as: Date.ISO8601Representation?.self)
-    var createdAt: Date
+    var createdAt: Date? = Date()
     
     @Column("feedId")
     var feedID: Feed.ID
@@ -60,29 +60,30 @@ struct LabelSet: Hashable, Identifiable {
     var labelsJson: String
     
     @Column(as: Date.ISO8601Representation?.self)
-    var createdAt: Date
+    var createdAt: Date? = Date()
 }
 
 @Table("labels")
 struct Label: Hashable, Identifiable {
-    let id: Int
+    var id: Int?
     
+    @Column("set")
     var labelSetVersion: LabelSet.ID
     var name: String
     var index: Int
     
     @Column(as: Date.ISO8601Representation?.self)
-    var createdAt: Date
+    var createdAt: Date? = Date()
 }
 
 
 @Table("predictions")
 struct Prediction: Hashable, Identifiable {
-    let id: Int
+    var id: Int?
     var articleId: Article.ID
     var label: Label.ID
     var confidence: Double
     
     @Column(as: Date.ISO8601Representation?.self)
-    var createdAt: Date
+    var createdAt: Date? = Date()
 }

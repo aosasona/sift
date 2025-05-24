@@ -10,6 +10,9 @@ import SharingGRDB
 
 @main
 struct SiftApp: App {
+    @AppStorage(AppStorageKey.hasCompletedOnboarding.rawValue) private var hasCompletedOnboarding: Bool = false
+    @AppStorage(AppStorageKey.colorScheme.rawValue) private var rawPreferredColorScheme: String = PreferredColorScheme.system.rawValue
+    
     init() {
         try! prepareDependencies {
             $0.defaultDatabase = try AppDatabase.init().getDatabase()
@@ -18,7 +21,13 @@ struct SiftApp: App {
     
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            if !hasCompletedOnboarding {
+                WelcomeView()
+                    .preferredColorScheme(PreferredColorScheme.fromString(rawPreferredColorScheme).colorScheme)
+            } else {
+                ForYouView()
+                    .preferredColorScheme(PreferredColorScheme.fromString(rawPreferredColorScheme).colorScheme)
+            }
         }
     }
 }
