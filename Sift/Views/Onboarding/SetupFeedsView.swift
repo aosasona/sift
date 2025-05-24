@@ -329,6 +329,8 @@ struct SetupFeedsView: View {
                     )
                 }
             }
+            
+            UserDefaults().setValue(true, forKey: AppStorageKey.hasCompletedOnboarding.rawValue)
         }
     }
 

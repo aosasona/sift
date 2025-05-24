@@ -25,7 +25,7 @@ struct SiftApp: App {
                 WelcomeView()
                     .preferredColorScheme(PreferredColorScheme.fromString(rawPreferredColorScheme).colorScheme)
             } else {
-                ForYouView()
+                TabbedRootView()
                     .preferredColorScheme(PreferredColorScheme.fromString(rawPreferredColorScheme).colorScheme)
             }
         }
