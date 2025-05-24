@@ -94,6 +94,11 @@ struct SelectPreferredCategoriesView: View {
                 }
                 .disabled(selectedCategories.count < 3)
                 .buttonStyle(.fullWidth)
+                .simultaneousGesture(TapGesture().onEnded {
+                    Task {
+                        saveCategories()
+                    }
+                })
                 
                 Text("You can change your preferences later in settings.")
                     .font(.footnote)
@@ -101,6 +106,23 @@ struct SelectPreferredCategoriesView: View {
                     .padding(.top, 4)
             }
             .padding(.horizontal)
+        }
+    }
+    
+    private func saveCategories() {
+        withErrorReporting {
+            try database.write { db in
+                // Clear existing preferred categories
+                try PreferredCategory.delete().execute(db)
+                
+                // Insert selected categories
+                for category in selectedCategories {
+                    let preferredCategory = PreferredCategory(category: category)
+                    try PreferredCategory.insert(preferredCategory).execute(db)
+                }
+                
+                Log.shared.info("Saved \(selectedCategories.count) preferred categories")
+            }
         }
     }
 }

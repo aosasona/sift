@@ -1,6 +1,15 @@
 {
-  "originHash" : "c1d28a01cece7d9b4642a1686c146cf9fabcef997cfe08f48ad4162a648d43cc",
+  "originHash" : "356b3aae1c8779f90e236d682d031b9f3365efc40c097f5595aaf14b24cd1ae0",
   "pins" : [
+    {
+      "identity" : "alerttoast",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/elai950/AlertToast",
+      "state" : {
+        "revision" : "b39252eacd159904afd7d718bba0afabb87f2f2f",
+        "version" : "1.3.9"
+      }
+    },
     {
       "identity" : "combine-schedulers",
       "kind" : "remoteSourceControl",
@@ -8,6 +17,15 @@
       "state" : {
         "revision" : "5928286acce13def418ec36d05a001a9641086f2",
         "version" : "1.0.3"
+      }
+    },
+    {
+      "identity" : "feedkit",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/nmdias/FeedKit",
+      "state" : {
+        "revision" : "2cd08354b25bfc85959d0855374d6e9aeaf3a7b2",
+        "version" : "10.0.0"
       }
     },
     {
