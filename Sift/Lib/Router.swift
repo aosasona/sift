@@ -15,12 +15,12 @@ class Router: ObservableObject {
     
     enum Page: Identifiable, Hashable, Codable {
         case welcome
-        case selectPreferedCategories
+        case selectPreferredCategories
         
         var id: String {
             switch self {
                 case .welcome: "welcome"
-                case .selectPreferedCategories: "selectPreferedCategories"
+                case .selectPreferredCategories: "selectPreferedCategories"
             }
         }
     }
@@ -29,7 +29,7 @@ class Router: ObservableObject {
     func pageView(for page: Page) -> some View {
         switch page {
             case .welcome: WelcomeView()
-            case .selectPreferedCategories: SelectPreferedCategoriesView()
+            case .selectPreferredCategories: SelectPreferredCategoriesView()
         }
     }
 }
