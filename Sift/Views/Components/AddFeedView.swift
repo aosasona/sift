@@ -11,6 +11,7 @@ import SwiftUI
 struct AddFeedView: View {
     @Dependency(\.defaultDatabase) private var database
     @Environment(\.dismiss) private var dismiss
+    @EnvironmentObject private var feedManager: FeedManager
 
     @State private var feedURL: String = ""
     @State private var isAddingFeed: Bool = false
@@ -48,6 +49,7 @@ struct AddFeedView: View {
                                     }
 
                                     isAddingFeed = false
+                                    await feedManager.refreshAll()
                                     dismiss()
                                 }
                             }
@@ -73,6 +75,7 @@ struct AddFeedView: View {
                         url: feed.url,
                         description: feed.description ?? "",
                         imageURL: feed.imageURL ?? "",
+                        addedAt: Date(),
                     )
                     try Feed.insert(record).execute(db)
                 }

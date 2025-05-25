@@ -29,6 +29,7 @@ struct ArticleView: View {
         if let url = URL(string: article.url) {
             WebView(url: url)
                 .navigationTitle(article.title)
+                .navigationBarTitleDisplayMode(.inline)
         } else {
             Text("Unable to load article")
         }

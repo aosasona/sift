@@ -103,6 +103,7 @@ struct FollowedFeedsView: View {
         withErrorReporting {
             do {
                 try database.write { db in
+                    try Article.delete().where{ $0.feedID == feed.id }.execute(db)
                     try Feed.delete(feed).execute(db)
                 }
             } catch {

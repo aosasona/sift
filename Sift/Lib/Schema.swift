@@ -5,6 +5,8 @@
 //  Created by Ayodeji Osasona on 24/05/2025.
 //
 
+import SwiftUI
+import CryptoKit
 import Foundation
 import SharingGRDB
 
@@ -32,7 +34,7 @@ struct Feed: Hashable, Identifiable  {
     var addedAt: Date? = Date()
     
     @Column(as: Date.ISO8601Representation?.self)
-    var lastSyncedAt: Date?
+    var lastSyncedAt: Date? = Date()
 }
 
 @Table("articles")
@@ -47,11 +49,11 @@ struct Article: Hashable, Identifiable {
     var summary: String?
     var label: String
     
-    @Column(as: Date.ISO8601Representation?.self)
-    var createdAt: Date? = Date()
-    
     @Column("feedId")
     var feedID: Feed.ID
+    
+    @Column(as: Date.ISO8601Representation?.self)
+    var createdAt: Date? = Date()
 }
 
 @Table("label_sets")
@@ -88,4 +90,20 @@ struct Prediction: Hashable, Identifiable {
     
     @Column(as: Date.ISO8601Representation?.self)
     var createdAt: Date? = Date()
+}
+
+
+extension Article {
+    var labelColor: Color {
+        // Generate a hash of the label
+        let hash = Insecure.MD5.hash(data: Data(label.utf8))
+        let bytes = Array(hash) // To array
+        
+        // Use the first three bytes to make RGB
+        let r = Double(bytes[0]) / 255.0
+        let g = Double(bytes[1]) / 255.0
+        let b = Double(bytes[2]) / 255.0
+        
+        return Color(red: r * 0.7 + 0.25, green: g * 0.7 + 0.25, blue: b * 0.7 + 0.25)
+    }
 }

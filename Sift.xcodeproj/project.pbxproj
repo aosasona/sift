@@ -19,9 +19,22 @@
 		EA2BB9652DDFEFF400E3829F /* Sift.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Sift.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		EA2C81252DE313F400897D43 /* Exceptions for "Sift" folder in "Sift" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = EA2BB9642DDFEFF400E3829F /* Sift */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		EA2BB9672DDFEFF400E3829F /* Sift */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				EA2C81252DE313F400897D43 /* Exceptions for "Sift" folder in "Sift" target */,
+			);
 			path = Sift;
 			sourceTree = "<group>";
 		};
@@ -284,8 +297,10 @@
 				DEVELOPMENT_TEAM = Q37WBU54YU;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = Sift/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = Sift;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
+				INFOPLIST_KEY_LSSupportsOpeningDocumentsInPlace = YES;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -314,8 +329,10 @@
 				DEVELOPMENT_TEAM = Q37WBU54YU;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = Sift/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = Sift;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
+				INFOPLIST_KEY_LSSupportsOpeningDocumentsInPlace = YES;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;

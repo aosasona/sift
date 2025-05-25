@@ -16,6 +16,14 @@ struct ForYouView: View {
     @FetchAll(
         #sql(
             """
+            SELECT category from preferred_categories
+            """
+        )
+    ) var categories: [String]
+
+    @FetchAll(
+        #sql(
+            """
             SELECT * FROM articles
             WHERE label IN (SELECT category from preferred_categories)
             """
@@ -32,11 +40,24 @@ struct ForYouView: View {
                                 VStack(alignment: .leading, spacing: 4) {
                                     Text(article.title)
                                         .font(.headline)
+                                        .lineLimit(2)
+
                                     Text(article.summary ?? "No description available")
                                         .font(.subheadline)
                                         .foregroundColor(.secondary)
                                         .lineLimit(2)
                                         .truncationMode(.tail)
+
+                                    HStack {
+                                        Text(article.label.capitalized)
+                                            .font(.caption)
+                                            .foregroundColor(article.labelColor)
+                                            .padding(.vertical, 4)
+                                            .padding(.horizontal, 6)
+                                            .background(article.labelColor.opacity(0.2))
+                                            .cornerRadius(12)
+                                    }
+
                                 }
                             }
                             .padding(.vertical, 4)
@@ -67,7 +88,7 @@ struct ForYouView: View {
                         showSettings.toggle()
                     } label: {
                         Image(systemName: "gear")
-                            .foregroundColor(.gray)
+                            .foregroundColor(.accentColor)
                     }
                 }
             }

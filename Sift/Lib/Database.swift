@@ -74,7 +74,7 @@ extension AppDatabase {
                 t.column("description", .text).defaults(to: "")
                 t.column("icon", .text).defaults(to: "")
                 t.column("addedAt", .datetime).notNull().defaults(sql: "CURRENT_TIMESTAMP")
-                t.column("lastSyncedAt", .datetime)
+                t.column("lastSyncedAt", .datetime).notNull().defaults(sql: "CURRENT_TIMESTAMP")
             }
 
             // LabelSets
@@ -108,13 +108,13 @@ extension AppDatabase {
                 t.column("htmlContent", .text).defaults(to: "")
                 t.column("textContent", .text).defaults(to: "")
                 t.column("summary", .text).defaults(to: "")
+                t.column("label", .text).notNull().defaults(to: "Uncategorized")
                 t.column("feedId", .integer).notNull().references(
                     "feeds",
                     column: "id",
                     onDelete: .cascade
                 )
                 t.column("createdAt", .datetime).notNull().defaults(sql: "CURRENT_TIMESTAMP")
-                t.column("label", .text).notNull().defaults(to: "Uncategorized")
             }
 
             // Predictions

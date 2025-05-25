@@ -285,13 +285,13 @@ struct SetupFeedsView: View {
                 for feed in feeds {
                     try db.execute(
                         sql: """
-                            INSERT INTO feeds (title, url, description, icon) VALUES (?, ?, ?, ?)
+                            INSERT INTO feeds (title, url, description, icon, addedAt) VALUES (?, ?, ?, ?, ?)
                             ON CONFLICT(url) DO UPDATE SET
                                 title = excluded.title,
                                 description = excluded.description,
                                 icon = excluded.icon
                             """,
-                        arguments: [feed.title, feed.url, feed.description ?? "", feed.imageURL ?? ""]
+                        arguments: [feed.title, feed.url, feed.description ?? "", feed.imageURL ?? "", Date()]
                     )
                 }
             }

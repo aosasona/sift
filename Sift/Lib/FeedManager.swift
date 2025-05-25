@@ -62,7 +62,7 @@ class FeedManager: ObservableObject, @unchecked Sendable {
         }
     }
 
-    private func refreshFeed(_ feed: Feed) async throws {
+    func refreshFeed(_ feed: Feed) async throws {
         Log.shared.info("Refreshing feed: \(feed.title)")
 
         guard let items = try await self.loadFeedDetails(feed) else {
@@ -87,7 +87,7 @@ class FeedManager: ObservableObject, @unchecked Sendable {
                 Log.shared.error("Failed to load HTML for \(item.link)")
                 continue
             }
-            
+
             guard let parsed = self.parseHtml(url: item.link, html: htmlContent) else {
                 Log.shared.error("Failed to parse HTML for \(item.link)")
                 continue
@@ -112,9 +112,9 @@ class FeedManager: ObservableObject, @unchecked Sendable {
 
             let model = try NewsClassifier()
             let output = try await model.prediction(
-                input: NewsClassifierInput(embedding_input: inputIdsArray)
+                input: NewsClassifierInput(embedding_input: inputIdsArray),
             )
-
+            
             let article = Article(
                 title: parsed.title,
                 url: item.link,
@@ -123,18 +123,18 @@ class FeedManager: ObservableObject, @unchecked Sendable {
                 textContent: parsed.textContent,
                 summary: self.summarizeContent(title: parsed.title, text: parsed.textContent ?? ""),
                 label: output.classLabel,
-                createdAt: Date(),
                 feedID: feed.id!,
+                createdAt: Date(),
             )
 
-//            var articleId: Int?
+            //            var articleId: Int?
             try await self.database.write { db in
                 // Insert the article into the database
                 try Article.insert(article).execute(db)
-//                guard let id = try Article.insert(article).returning(\.id).fetchOne(db) else {
-//                    Log.shared.error("Failed to insert article: \(article.title)")
-//                    return
-//                }
+                //                guard let id = try Article.insert(article).returning(\.id).fetchOne(db) else {
+                //                    Log.shared.error("Failed to insert article: \(article.title)")
+                //                    return
+                //                }
 
                 // Update the feed's last sync date
                 try db.execute(
@@ -146,18 +146,18 @@ class FeedManager: ObservableObject, @unchecked Sendable {
 
             }
 
-//            // Save the probabilities for the article
-//            try await self.database.write { db in
-//                for (label, probability) in output.classLabel_probs {
-//                    try db.execute(
-//                        sql: """
-//                            INSERT INTO predictions (articleId, label, confidence, createdAt)
-//                            VALUES (?, ?, ?, CURRENT_TIMESTAMP)
-//                            """,
-//                        arguments: [label, probability, articleId]
-//                    )
-//                }
-//            }
+            //            // Save the probabilities for the article
+            //            try await self.database.write { db in
+            //                for (label, probability) in output.classLabel_probs {
+            //                    try db.execute(
+            //                        sql: """
+            //                            INSERT INTO predictions (articleId, label, confidence, createdAt)
+            //                            VALUES (?, ?, ?, CURRENT_TIMESTAMP)
+            //                            """,
+            //                        arguments: [label, probability, articleId]
+            //                    )
+            //                }
+            //            }
 
             Log.shared.info("Inserted article: \(article.title) with label \(article.label)")
         }
@@ -208,7 +208,7 @@ class FeedManager: ObservableObject, @unchecked Sendable {
             Log.shared.error("Invalid URL: \(url)")
             return nil
         }
-        
+
         // Load with Mozilla User-Agent to avoid blocking
         var request = URLRequest(url: url)
         request.setValue(
@@ -220,7 +220,7 @@ class FeedManager: ObservableObject, @unchecked Sendable {
             Log.shared.error("Failed to decode HTML from \(url)")
             return nil
         }
-        
+
         return html
     }
 
