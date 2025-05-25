@@ -16,6 +16,7 @@ struct ForYouView: View {
             """
             SELECT * FROM articles
             WHERE label IN (SELECT category from preferred_categories)
+            ORDER BY createdAt DESC
             """
         )
     ) var articles: [Article]

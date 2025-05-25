@@ -84,6 +84,7 @@ struct ArticlesListView: View {
                     """
                     SELECT * FROM \(Article.self)
                     WHERE \(bind: currentCategory  ?? "") = '' OR label = \(bind: currentCategory ?? "")
+                    ORDER BY createdAt DESC
                     """
                 ).fetchAll(db)
 
