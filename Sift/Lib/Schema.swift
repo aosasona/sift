@@ -9,9 +9,10 @@ import Foundation
 import SharingGRDB
 
 @Table("preferred_categories")
-struct PreferredCategory: Hashable, Identifiable {
+struct PreferredTopic: Hashable, Identifiable {
     var id: Int?
-    var category: String
+    @Column("category")
+    var name: String
 
     @Column(as: Date.ISO8601Representation?.self)
     var createdAt: Date? = Date()
@@ -29,6 +30,9 @@ struct Feed: Hashable, Identifiable  {
     
     @Column(as: Date.ISO8601Representation?.self)
     var addedAt: Date? = Date()
+    
+    @Column(as: Date.ISO8601Representation?.self)
+    var lastSyncedAt: Date?
 }
 
 @Table("articles")
@@ -64,7 +68,7 @@ struct LabelSet: Hashable, Identifiable {
 }
 
 @Table("labels")
-struct Label: Hashable, Identifiable {
+struct Category: Hashable, Identifiable {
     var id: Int?
     
     @Column("set")
@@ -81,7 +85,7 @@ struct Label: Hashable, Identifiable {
 struct Prediction: Hashable, Identifiable {
     var id: Int?
     var articleId: Article.ID
-    var label: Label.ID
+    var label: Category.ID
     var confidence: Double
     
     @Column(as: Date.ISO8601Representation?.self)

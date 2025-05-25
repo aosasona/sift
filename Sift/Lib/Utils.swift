@@ -62,8 +62,8 @@ func importLabelSets(_ databaseWriter: any DatabaseWriter) throws {
 
         // Insert the labels
         for i in 0..<labels.count {
-            let label = Label(labelSetVersion: labelSet.id, name: labels[i], index: i)
-            try Label.insert(label).execute(db)
+            let label = Category(labelSetVersion: labelSet.id, name: labels[i], index: i)
+            try Category.insert(label).execute(db)
         }
     }
 }

@@ -227,35 +227,10 @@ struct SetupFeedsView: View {
     }
 
     @ViewBuilder
-    func ImagePlaceholder() -> some View {
-        RoundedRectangle(cornerRadius: 5)
-            .fill(Color.gray.opacity(0.5))
-            .frame(width: ImageSize, height: ImageSize)
-            .overlay(
-                Image(systemName: "newspaper")
-                    .foregroundStyle(.white)
-                    .font(.system(size: 13))
-            )
-    }
-
-    @ViewBuilder
     func FeedCard(feed: ParsedFeed) -> some View {
         HStack(alignment: .center, spacing: 12) {
             VStack {
-                if let imageURL = feed.imageURL, let url = URL(string: imageURL) {
-                    AsyncImage(url: url) { image in
-                        image
-                            .resizable()
-                            .aspectRatio(contentMode: .fit)
-                            .frame(width: ImageSize, height: ImageSize)
-                            .clipShape(RoundedRectangle(cornerRadius: 5))
-                    } placeholder: {
-                        ImagePlaceholder()
-                    }
-                } else {
-                    // Newspaper in gray box
-                    ImagePlaceholder()
-                }
+                FeedImage(imageURL: feed.imageURL)
 
                 if feed.description != nil {
                     Spacer()

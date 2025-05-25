@@ -8,8 +8,45 @@
 import SwiftUI
 
 struct ForYouView: View {
+    @State private var showSettings = false
+    
     var body: some View {
-        Text(/*@START_MENU_TOKEN@*/"Hello, World!"/*@END_MENU_TOKEN@*/)
+        NavigationStack {
+            List {
+                Section(header: Text("Recommended for You")) {
+                    ForEach(0..<5) { index in
+                        HStack(alignment: .top, spacing: 12) {
+                            Rectangle()
+                                .fill(Color.gray.opacity(0.3))
+                                .frame(width: 60, height: 60)
+                                .cornerRadius(8)
+                            VStack(alignment: .leading, spacing: 4) {
+                                Text("Sample Article Title \(index + 1)")
+                                    .font(.headline)
+                                Text("Brief summary of the article goes here. It should be concise and engaging.")
+                                    .font(.subheadline)
+                                    .foregroundColor(.secondary)
+                            }
+                        }
+                        .padding(.vertical, 4)
+                    }
+                }
+            }
+            .navigationTitle("For You")
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button {
+                        showSettings.toggle()
+                    } label: {
+                        Image(systemName: "gear")
+                            .foregroundColor(.gray)
+                    }
+                }
+            }
+            .sheet(isPresented: $showSettings) {
+                SettingsView()
+            }
+        }
     }
 }
 

@@ -61,24 +61,25 @@ extension AppDatabase {
         migrator.registerMigration("create tables") { db in
             // Preferred Categories
             try db.create(table: "preferred_categories") { t in
-                t.column("id", .integer).primaryKey(autoincrement: true)
+                t.autoIncrementedPrimaryKey("id")
                 t.column("category", .text).notNull()
                 t.column("createdAt", .datetime).notNull().defaults(sql: "CURRENT_TIMESTAMP")
             }
 
             // Feeds
             try db.create(table: "feeds") { t in
-                t.column("id", .integer).primaryKey(autoincrement: true)
+                t.autoIncrementedPrimaryKey("id")
                 t.column("title", .text).notNull()
                 t.column("url", .text).notNull().unique(onConflict: .ignore)
                 t.column("description", .text).notNull().defaults(to: "")
                 t.column("icon", .text).notNull().defaults(to: "")
                 t.column("addedAt", .datetime).notNull().defaults(sql: "CURRENT_TIMESTAMP")
+                t.column("lastSyncedAt", .datetime)
             }
 
             // Articles
             try db.create(table: "articles") { t in
-                t.column("id", .integer).primaryKey(autoincrement: true)
+                t.autoIncrementedPrimaryKey("id")
                 t.column("title", .text).notNull()
                 t.column("url", .text).notNull().unique(onConflict: .ignore)
                 t.column("description", .text).notNull().defaults(to: "")
@@ -103,7 +104,7 @@ extension AppDatabase {
 
             // Labels
             try db.create(table: "labels") { t in
-                t.column("id", .integer).primaryKey(autoincrement: true)
+                t.autoIncrementedPrimaryKey("id")
                 t.column("set", .integer).notNull().references(
                     "label_sets",
                     column: "version",
@@ -118,7 +119,7 @@ extension AppDatabase {
 
             // Predictions
             try db.create(table: "predictions") { t in
-                t.column("id", .integer).primaryKey(autoincrement: true)
+                t.autoIncrementedPrimaryKey("id")
                 t.column("articleId", .integer).notNull().references(
                     "articles",
                     column: "id",

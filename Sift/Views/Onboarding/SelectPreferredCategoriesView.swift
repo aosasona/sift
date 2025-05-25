@@ -17,7 +17,7 @@ struct SelectPreferredCategoriesView: View {
 
     @State private var selectedCategories: Set<String> = []
 
-    @FetchAll var categories: [Sift.Label]
+    @FetchAll var categories: [Sift.Category]
 
     var indicatorColor: Color {
         switch selectedCategories.count {
@@ -120,12 +120,12 @@ struct SelectPreferredCategoriesView: View {
         withErrorReporting {
             try database.write { db in
                 // Clear existing preferred categories
-                try PreferredCategory.delete().execute(db)
+                try PreferredTopic.delete().execute(db)
                 
                 // Insert selected categories
                 for category in selectedCategories {
-                    let preferredCategory = PreferredCategory(category: category)
-                    try PreferredCategory.insert(preferredCategory).execute(db)
+                    let preferredCategory = PreferredTopic(name: category)
+                    try PreferredTopic.insert(preferredCategory).execute(db)
                 }
                 
                 Log.shared.info("Saved \(selectedCategories.count) preferred categories")
