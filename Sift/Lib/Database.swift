@@ -62,7 +62,7 @@ extension AppDatabase {
             // Preferred Categories
             try db.create(table: "preferred_categories") { t in
                 t.autoIncrementedPrimaryKey("id")
-                t.column("category", .text).notNull()
+                t.column("category", .text).notNull().unique(onConflict: .ignore)
                 t.column("createdAt", .datetime).notNull().defaults(sql: "CURRENT_TIMESTAMP")
             }
 
@@ -104,11 +104,10 @@ extension AppDatabase {
                 t.autoIncrementedPrimaryKey("id")
                 t.column("title", .text).notNull()
                 t.column("url", .text).notNull().unique(onConflict: .ignore)
-                t.column("description", .text).notNull().defaults(to: "")
-                t.column("htmlContent", .text).notNull().defaults(to: "")
-                t.column("textContent", .text).notNull().defaults(to: "")
-                t.column("summary", .text).notNull().defaults(to: "")
-                t.column("publishedAt", .datetime).notNull()
+                t.column("description", .text).defaults(to: "")
+                t.column("htmlContent", .text).defaults(to: "")
+                t.column("textContent", .text).defaults(to: "")
+                t.column("summary", .text).defaults(to: "")
                 t.column("feedId", .integer).notNull().references(
                     "feeds",
                     column: "id",

@@ -71,7 +71,7 @@ struct SelectPreferredCategoriesView: View {
                                 .padding(.vertical, 8)
                                 .background(
                                     selectedCategories.contains(category.name)
-                                        ? .red : Color.gray.opacity(0.2)
+                                        ? .accentColor : Color.gray.opacity(0.2)
                                 )
                                 .foregroundColor(
                                     selectedCategories.contains(category.name)

@@ -1,5 +1,5 @@
 {
-  "originHash" : "25a2afccec62e8832521dd5407818df3e844306166099cbba68161f6d25fe8ef",
+  "originHash" : "95d230cd37a7eab466c61aeaa8dcf4c79dcbc7ca718e45ad4e46fe020f778779",
   "pins" : [
     {
       "identity" : "alerttoast",
@@ -110,15 +110,6 @@
       }
     },
     {
-      "identity" : "swift-readability",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/Ryu0118/swift-readability",
-      "state" : {
-        "revision" : "5baf9d1fddc66fae9be962462532a27269882f93",
-        "version" : "0.1.0"
-      }
-    },
-    {
       "identity" : "swift-sharing",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/pointfreeco/swift-sharing",
@@ -152,6 +143,15 @@
       "state" : {
         "revision" : "f99ae8aa18f0cf0d53481901f88a0991dc3bd4a2",
         "version" : "601.0.1"
+      }
+    },
+    {
+      "identity" : "swiftsoup",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/scinfu/SwiftSoup",
+      "state" : {
+        "revision" : "bba848db50462894e7fc0891d018dfecad4ef11e",
+        "version" : "2.8.7"
       }
     },
     {

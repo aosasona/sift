@@ -35,19 +35,19 @@ struct SiftApp: App {
                     .preferredColorScheme(
                         PreferredColorScheme.fromString(rawPreferredColorScheme).colorScheme
                     )
+                    .tint(.accent)
                     .environmentObject(feedManager!)
             } else {
                 TabbedRootView()
                     .preferredColorScheme(
                         PreferredColorScheme.fromString(rawPreferredColorScheme).colorScheme
                     )
+                    .tint(.accent)
                     .environmentObject(feedManager!)
                     .task {
-                        refreshTask = Task.detached {
-                            while true {
-                                try? await Task.sleep(nanoseconds: 60 * 60 * 1_000_000_000)  // 1 hour
-                                await feedManager?.refreshAll()
-                            }
+                        while true {
+                            try? await Task.sleep(nanoseconds: 60 * 60 * 1_000_000_000)  // 1 hour
+                            await feedManager?.refreshAll()
                         }
                     }
             }

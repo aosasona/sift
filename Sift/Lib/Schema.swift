@@ -47,9 +47,6 @@ struct Article: Hashable, Identifiable {
     var summary: String?
     var label: String
     
-    @Column(as: Date.ISO8601Representation.self)
-    var publishedAt: Date
-    
     @Column(as: Date.ISO8601Representation?.self)
     var createdAt: Date? = Date()
     

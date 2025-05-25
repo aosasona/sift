@@ -9,8 +9,8 @@ import FeedKit
 import Foundation
 import GRDB
 import NaturalLanguage
-import Readability
 import SharingGRDB
+import SwiftSoup
 
 struct FeedItem {
     let title: String
@@ -20,12 +20,10 @@ struct FeedItem {
     let textContent: String?
 }
 
-class FeedManager: ObservableObject {
+@MainActor
+class FeedManager: ObservableObject, @unchecked Sendable {
     private let database: any DatabaseWriter
     private let tk = Sift.Tokenizer()
-
-    @MainActor
-    private let readability = Readability()
 
     @Published var isRefreshing: Bool = false
 
@@ -34,39 +32,48 @@ class FeedManager: ObservableObject {
     }
 
     func refreshAll() async {
-        do {
-            try await database.read { db in
-                let feeds = try #sql<Feed>("SELECT * FROM feeds").fetchAll(db)
+        DispatchQueue.main.async {
+            self.isRefreshing = true
+        }
 
-                for feed in feeds {
-                    Task {
-                        do {
-                            try await self.refreshFeed(feed, db: db)
-                        } catch {
-                            Log.shared.error(
-                                "Failed to refresh feed \(feed.title): \(error.localizedDescription)",
-                                error: error
-                            )
-                        }
+        do {
+            let feeds = try await database.read { db in
+                try #sql<Feed>("SELECT * FROM feeds").fetchAll(db)
+            }
+
+            for feed in feeds {
+                Task {
+                    do {
+                        try await self.refreshFeed(feed)
+                    } catch {
+                        print(error)
+                        Log.shared.error(
+                            "Failed to refresh feed \(feed.title): \(error.localizedDescription)",
+                            error: error
+                        )
                     }
                 }
             }
         } catch {
             Log.shared.error("Failed to refresh feeds: \(error.localizedDescription)", error: error)
         }
+        DispatchQueue.main.async {
+            self.isRefreshing = false
+        }
     }
 
-    private func refreshFeed(_ feed: Feed, db: Database) async throws {
+    private func refreshFeed(_ feed: Feed) async throws {
         Log.shared.info("Refreshing feed: \(feed.title)")
-        self.isRefreshing = true
 
         guard let items = try await self.loadFeedDetails(feed) else {
             Log.shared.error("Failed to load feed details for \(feed.title)")
             return
         }
 
-        let feedItems = try #sql<Article>("SELECT * FROM articles WHERE feedId = \(feed.id!)")
-            .fetchAll(db)
+        let feedItems = try await database.read { db in
+            try #sql<Article>("SELECT * FROM articles WHERE feedId = \(feed.id!)")
+                .fetchAll(db)
+        }
 
         for item in items {
             // Check if the item already exists
@@ -76,19 +83,22 @@ class FeedManager: ObservableObject {
             }
 
             // Extract text content and HTML
-            let parsed = try await readability.parse(url: URL(string: item.link)!)
-
-            let title = parsed.title
-            let htmlContent = parsed.content
-            let textContent = parsed.textContent
-            let excerpt = parsed.excerpt
+            guard let htmlContent = try? await self.loadHTML(url: item.link) else {
+                Log.shared.error("Failed to load HTML for \(item.link)")
+                continue
+            }
+            
+            guard let parsed = self.parseHtml(url: item.link, html: htmlContent) else {
+                Log.shared.error("Failed to parse HTML for \(item.link)")
+                continue
+            }
 
             // Generate predictions for the article
-            let tokenized = self.tk.tokenize(textContent)
+            let tokenized = self.tk.tokenize(parsed.textContent ?? "")
 
             guard
                 let inputIdsArray = try? MLMultiArray(
-                    shape: [NSNumber(value: tk.maxLength)],
+                    shape: [1, NSNumber(value: tk.maxLength)],
                     dataType: .int32
                 )
             else {
@@ -106,21 +116,25 @@ class FeedManager: ObservableObject {
             )
 
             let article = Article(
-                title: title,
+                title: parsed.title,
                 url: item.link,
-                htmlContent: htmlContent,
-                textContent: textContent,
-                summary: excerpt.isEmpty
-                    ? self.summarizeContent(title: title, text: textContent)
-                    : excerpt,
+                description: item.description ?? "",
+                htmlContent: parsed.htmlContent,
+                textContent: parsed.textContent,
+                summary: self.summarizeContent(title: parsed.title, text: parsed.textContent ?? ""),
                 label: output.classLabel,
-                publishedAt: Date(),
+                createdAt: Date(),
                 feedID: feed.id!,
             )
 
+//            var articleId: Int?
             try await self.database.write { db in
                 // Insert the article into the database
                 try Article.insert(article).execute(db)
+//                guard let id = try Article.insert(article).returning(\.id).fetchOne(db) else {
+//                    Log.shared.error("Failed to insert article: \(article.title)")
+//                    return
+//                }
 
                 // Update the feed's last sync date
                 try db.execute(
@@ -132,23 +146,21 @@ class FeedManager: ObservableObject {
 
             }
 
-            // Save the probabilities for the article
-            try await self.database.write { db in
-                for (label, probability) in output.classLabel_probs {
-                    try db.execute(
-                        sql: """
-                            INSERT INTO predictions (articleId, label, confidence, createdAt)
-                            VALUES (?, ?, ?, CURRENT_TIMESTAMP)
-                            """,
-                        arguments: [label, probability, article.id!]
-                    )
-                }
-            }
+//            // Save the probabilities for the article
+//            try await self.database.write { db in
+//                for (label, probability) in output.classLabel_probs {
+//                    try db.execute(
+//                        sql: """
+//                            INSERT INTO predictions (articleId, label, confidence, createdAt)
+//                            VALUES (?, ?, ?, CURRENT_TIMESTAMP)
+//                            """,
+//                        arguments: [label, probability, articleId]
+//                    )
+//                }
+//            }
 
             Log.shared.info("Inserted article: \(article.title) with label \(article.label)")
         }
-
-        self.isRefreshing = false
     }
 
     private func loadFeedDetails(_ feed: Feed) async throws -> [FeedItem]? {
@@ -196,9 +208,43 @@ class FeedManager: ObservableObject {
             Log.shared.error("Invalid URL: \(url)")
             return nil
         }
+        
+        // Load with Mozilla User-Agent to avoid blocking
+        var request = URLRequest(url: url)
+        request.setValue(
+            "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
+            forHTTPHeaderField: "User-Agent"
+        )
+        let (data, _) = try await URLSession.shared.data(for: request)
+        guard let html = String(data: data, encoding: .utf8) else {
+            Log.shared.error("Failed to decode HTML from \(url)")
+            return nil
+        }
+        
+        return html
+    }
 
-        let (data, _) = try await URLSession.shared.data(from: url)
-        return String(data: data, encoding: .utf8)
+    private func parseHtml(url: String, html: String) -> FeedItem? {
+        do {
+            let document = try SwiftSoup.parse(html)
+
+            let title = try document.title()
+            let description =
+                try document.select("meta[name=description]").first()?.attr("content") ?? ""
+            let link = try document.select("link[rel=canonical]").first()?.attr("href") ?? ""
+            let htmlContent = try document.body()?.html() ?? ""
+            let textContent = try document.body()?.text() ?? ""
+
+            return FeedItem(
+                title: title,
+                description: description.isEmpty ? nil : description,
+                link: link.isEmpty ? url : link,
+                htmlContent: htmlContent,
+                textContent: textContent
+            )
+        } catch {
+            return .none
+        }
     }
 
     private func summarizeContent(title: String, text: String) -> String {
