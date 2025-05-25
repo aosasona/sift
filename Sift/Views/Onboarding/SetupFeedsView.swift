@@ -35,6 +35,7 @@ class ToastState: ObservableObject {
 
 struct SetupFeedsView: View {
     @Dependency(\.defaultDatabase) private var database
+    @EnvironmentObject private var feedManager: FeedManager
 
     #if DEBUG
         @State private var recommendedFeeds: [ParsedFeed] = [
@@ -291,11 +292,16 @@ struct SetupFeedsView: View {
                                 description = excluded.description,
                                 icon = excluded.icon
                             """,
-                        arguments: [feed.title, feed.url, feed.description ?? "", feed.imageURL ?? "", Date()]
+                        arguments: [
+                            feed.title, feed.url, feed.description ?? "", feed.imageURL ?? "",
+                            Date(),
+                        ]
                     )
                 }
             }
-            
+
+            Task { await feedManager.refreshAll() }
+
             UserDefaults().setValue(true, forKey: AppStorageKey.hasCompletedOnboarding.rawValue)
         }
     }

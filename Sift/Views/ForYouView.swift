@@ -16,14 +16,6 @@ struct ForYouView: View {
     @FetchAll(
         #sql(
             """
-            SELECT category from preferred_categories
-            """
-        )
-    ) var categories: [String]
-
-    @FetchAll(
-        #sql(
-            """
             SELECT * FROM articles
             WHERE label IN (SELECT category from preferred_categories)
             """
@@ -32,39 +24,7 @@ struct ForYouView: View {
 
     var body: some View {
         NavigationStack {
-            List {
-                Section {
-                    ForEach(articles) { article in
-                        NavigationLink(destination: ArticleView(article: article)) {
-                            HStack(alignment: .top, spacing: 12) {
-                                VStack(alignment: .leading, spacing: 4) {
-                                    Text(article.title)
-                                        .font(.headline)
-                                        .lineLimit(2)
-
-                                    Text(article.summary ?? "No description available")
-                                        .font(.subheadline)
-                                        .foregroundColor(.secondary)
-                                        .lineLimit(2)
-                                        .truncationMode(.tail)
-
-                                    HStack {
-                                        Text(article.label.capitalized)
-                                            .font(.caption)
-                                            .foregroundColor(article.labelColor)
-                                            .padding(.vertical, 4)
-                                            .padding(.horizontal, 6)
-                                            .background(article.labelColor.opacity(0.2))
-                                            .cornerRadius(12)
-                                    }
-
-                                }
-                            }
-                            .padding(.vertical, 4)
-                        }
-                    }
-                }
-            }
+            ArticlesList(articles: articles)
             .navigationTitle("For You")
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {

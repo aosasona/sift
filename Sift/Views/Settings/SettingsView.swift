@@ -4,10 +4,13 @@
 //
 //  Created by Ayodeji Osasona on 25/05/2025.
 //
+import Dependencies
 import Foundation
 import SwiftUI
 
 struct SettingsView: View {
+    @Dependency(\.defaultDatabase) private var database
+    
     @AppStorage(AppStorageKey.colorScheme.rawValue) private var preferredColorScheme: String =
         PreferredColorScheme.system.rawValue
 
@@ -46,8 +49,10 @@ struct SettingsView: View {
                             false,
                             forKey: AppStorageKey.hasCompletedOnboarding.rawValue
                         )
+
+                        resetDatabase()
                     }) {
-                        Label("Reset onboarding state", systemImage: "arrow.clockwise")
+                        Label("Reset application", systemImage: "arrow.clockwise")
                             .foregroundColor(.red)
                     }
                 } header: {
@@ -55,6 +60,21 @@ struct SettingsView: View {
                 }
             }
             .navigationTitle("Settings")
+        }
+    }
+
+    private func resetDatabase() {
+        // Truncate the tables
+        withErrorReporting {
+            do {
+                try database.write { db in
+                    try db.execute(sql: "DELETE FROM articles")
+                    try db.execute(sql: "DELETE FROM feeds")
+                    try db.execute(sql: "DELETE FROM preferred_topics")
+                }
+            } catch {
+                Log.shared.error("Failed to reset database: \(error.localizedDescription)")
+            }
         }
     }
 

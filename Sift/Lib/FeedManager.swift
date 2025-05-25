@@ -93,8 +93,15 @@ class FeedManager: ObservableObject, @unchecked Sendable {
                 continue
             }
 
-            // Generate predictions for the article
-            let tokenized = self.tk.tokenize(parsed.textContent ?? "")
+            // Heuristics-based summarization
+            let summary = self.summarizeContent(
+                title: parsed.title,
+                text: parsed.textContent ?? "",
+                n: 1
+            )
+
+            // Generate predictions for the article (we will use the title and summary)
+            let tokenized = self.tk.tokenize("\(parsed.title) \(summary)")
 
             guard
                 let inputIdsArray = try? MLMultiArray(
@@ -114,14 +121,14 @@ class FeedManager: ObservableObject, @unchecked Sendable {
             let output = try await model.prediction(
                 input: NewsClassifierInput(embedding_input: inputIdsArray),
             )
-            
+
             let article = Article(
                 title: parsed.title,
                 url: item.link,
                 description: item.description ?? "",
                 htmlContent: parsed.htmlContent,
                 textContent: parsed.textContent,
-                summary: self.summarizeContent(title: parsed.title, text: parsed.textContent ?? ""),
+                summary: summary,
                 label: output.classLabel,
                 feedID: feed.id!,
                 createdAt: Date(),
@@ -247,7 +254,7 @@ class FeedManager: ObservableObject, @unchecked Sendable {
         }
     }
 
-    private func summarizeContent(title: String, text: String) -> String {
+    private func summarizeContent(title: String, text: String, n: Int) -> String {
         let tokenizer = NLTokenizer(unit: .sentence)
         tokenizer.string = text
 
@@ -270,11 +277,11 @@ class FeedManager: ObservableObject, @unchecked Sendable {
             return true
         }
 
-        // Sort by score and take the top 2
+        // Sort by score and take the top N
         let topSentences =
             scoredSentences
             .sorted(by: { $0.score > $1.score })
-            .prefix(2)
+            .prefix(n)
             .map { $0.sentence }
 
         return topSentences.joined(separator: " ")
