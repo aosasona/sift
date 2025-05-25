@@ -7,17 +7,37 @@
 
 import SwiftUI
 
-struct ArticlesList: View {
+struct ArticlesList<Content: View>: View {
     var articles: [Article]
+    @ViewBuilder let content: Content?
     
     @State private var searchText = ""
     
     var body: some View {
         List {
+            if let content = content {
+                Section {
+                    content
+                }
+                .listRowInsets(EdgeInsets())
+                .listRowBackground(Color.clear)
+                .listRowSeparator(.hidden)
+                .listRowSeparatorTint(.clear)
+            }
+            
+            if articles.isEmpty {
+                Section {
+                    Text("No articles found")
+                        .foregroundColor(.secondary)
+                        .padding()
+                }
+            }
+            
             Section {
                 ForEach(
                     articles.filter { article in
-                        searchText.isEmpty || article.title.localizedCaseInsensitiveContains(searchText)
+                        searchText.isEmpty
+                        || article.title.localizedCaseInsensitiveContains(searchText)
                     }
                 ) { article in
                     NavigationLink(destination: ArticleView(article: article)) {
@@ -50,6 +70,7 @@ struct ArticlesList: View {
                 }
             }
         }
+        .listStyle(.plain)
         .searchable(text: $searchText, prompt: "Search")
     }
 }

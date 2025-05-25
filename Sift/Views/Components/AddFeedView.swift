@@ -16,6 +16,7 @@ struct AddFeedView: View {
     @State private var feedURL: String = ""
     @State private var isAddingFeed: Bool = false
     @StateObject private var toastState = ToastState()
+    @FocusState private var isFieldFocused: Bool
 
     var body: some View {
         NavigationStack {
@@ -25,6 +26,7 @@ struct AddFeedView: View {
                         TextField("Enter feed URL", text: $feedURL)
                             .keyboardType(.URL)
                             .textContentType(.URL)
+                            .focused($isFieldFocused)
                             .onSubmit {
                                 guard !feedURL.isEmpty else { return }
 
@@ -60,6 +62,11 @@ struct AddFeedView: View {
                                 .padding(.leading, 8)
                         }
                     }
+                }
+            }
+            .task {
+                await MainActor.run {
+                    isFieldFocused = true
                 }
             }
             .navigationTitle("Add Feed")

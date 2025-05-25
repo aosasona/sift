@@ -97,7 +97,7 @@ class FeedManager: ObservableObject, @unchecked Sendable {
             let summary = self.summarizeContent(
                 title: parsed.title,
                 text: parsed.textContent ?? "",
-                n: 1
+                n: 2
             )
 
             // Generate predictions for the article (we will use the title and summary)

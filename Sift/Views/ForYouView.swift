@@ -11,8 +11,6 @@ import SwiftUI
 struct ForYouView: View {
     @EnvironmentObject var feedManager: FeedManager
 
-    @State private var showSettings = false
-
     @FetchAll(
         #sql(
             """
@@ -24,37 +22,25 @@ struct ForYouView: View {
 
     var body: some View {
         NavigationStack {
-            ArticlesList(articles: articles)
-            .navigationTitle("For You")
-            .toolbar {
-                ToolbarItem(placement: .topBarTrailing) {
-                    if feedManager.isRefreshing {
-                        ProgressView()
-                            .progressViewStyle(CircularProgressViewStyle())
-                    } else {
-                        Button(action: {
-                            Task {
-                                await feedManager.refreshAll()
+            ArticlesList(articles: articles) {}
+                .navigationTitle("For You")
+                .toolbar {
+                    ToolbarItem(placement: .topBarTrailing) {
+                        if feedManager.isRefreshing {
+                            ProgressView()
+                                .progressViewStyle(CircularProgressViewStyle())
+                        } else {
+                            Button(action: {
+                                Task {
+                                    await feedManager.refreshAll()
+                                }
+                            }) {
+                                Image(systemName: "arrow.clockwise")
+                                    .foregroundColor(.accentColor)
                             }
-                        }) {
-                            Image(systemName: "arrow.clockwise")
-                                .foregroundColor(.accentColor)
                         }
                     }
                 }
-
-                ToolbarItem(placement: .topBarTrailing) {
-                    Button {
-                        showSettings.toggle()
-                    } label: {
-                        Image(systemName: "gear")
-                            .foregroundColor(.accentColor)
-                    }
-                }
-            }
-            .sheet(isPresented: $showSettings) {
-                SettingsView()
-            }
         }
     }
 }
