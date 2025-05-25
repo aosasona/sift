@@ -25,15 +25,18 @@ struct FollowedFeedsView: View {
                         searchText.isEmpty || $0.title.localizedCaseInsensitiveContains(searchText)
                     }
                 ) { feed in
-                    HStack(alignment: .center, spacing: 10) {
+                    HStack(alignment: .top, spacing: 10) {
                         FeedImage(imageURL: feed.imageURL)
 
                         VStack(alignment: .leading, spacing: 4) {
                             Text(feed.title)
 
-                            Text(feed.url)
-                                .font(.footnote)
-                                .foregroundColor(.secondary)
+                            Link(destination: URL(string: feed.url)!) {
+                                Text(URL(string: feed.url)!.host()!)
+                                    .font(.footnote)
+                                    .foregroundColor(.accentColor)
+                                    .underline()
+                            }
 
                             if let syncedAt = feed.lastSyncedAt {
                                 Text(
@@ -46,10 +49,10 @@ struct FollowedFeedsView: View {
                     }
                     .padding(.vertical, 2)
                     .contextMenu {
-                        if let syncedAt = feed.lastSyncedAt {
+                        if let addedAt = feed.addedAt {
                             Label(
-                                "Last synced: \(syncedAt.formatted(date: .abbreviated, time: .shortened))",
-                                systemImage: "clock"
+                                "Added on \(addedAt.formatted(date: .abbreviated, time: .shortened))",
+                                systemImage: "calendar"
                             )
                             .foregroundColor(.secondary)
                         }

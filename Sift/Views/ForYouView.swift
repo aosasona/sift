@@ -21,37 +21,26 @@ struct ForYouView: View {
             """
         )
     ) var articles: [Article]
-    
-//    @FetchAll(
-//        #sql(
-//            """
-//            SELECT publishedAt FROM articles
-//            """
-//        )
-//    ) var dates: [String]
 
     var body: some View {
         NavigationStack {
             List {
-                Text("\(articles)")
-                Section(header: Text("Recommended for You")) {
-                    ForEach(0..<5) { index in
-                        HStack(alignment: .top, spacing: 12) {
-                            Rectangle()
-                                .fill(Color.gray.opacity(0.3))
-                                .frame(width: 60, height: 60)
-                                .cornerRadius(8)
-                            VStack(alignment: .leading, spacing: 4) {
-                                Text("Sample Article Title \(index + 1)")
-                                    .font(.headline)
-                                Text(
-                                    "Brief summary of the article goes here. It should be concise and engaging."
-                                )
-                                .font(.subheadline)
-                                .foregroundColor(.secondary)
+                Section {
+                    ForEach(articles) { article in
+                        NavigationLink(destination: ArticleView(article: article)) {
+                            HStack(alignment: .top, spacing: 12) {
+                                VStack(alignment: .leading, spacing: 4) {
+                                    Text(article.title)
+                                        .font(.headline)
+                                    Text(article.summary ?? "No description available")
+                                        .font(.subheadline)
+                                        .foregroundColor(.secondary)
+                                        .lineLimit(2)
+                                        .truncationMode(.tail)
+                                }
                             }
+                            .padding(.vertical, 4)
                         }
-                        .padding(.vertical, 4)
                     }
                 }
             }
