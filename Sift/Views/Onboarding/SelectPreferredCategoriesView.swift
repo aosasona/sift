@@ -71,7 +71,7 @@ struct SelectPreferredCategoriesView: View {
                                 .padding(.vertical, 8)
                                 .background(
                                     selectedCategories.contains(category.name)
-                                        ? .accentColor : Color.gray.opacity(0.2)
+                                        ? .red : Color.gray.opacity(0.2)
                                 )
                                 .foregroundColor(
                                     selectedCategories.contains(category.name)
@@ -85,7 +85,9 @@ struct SelectPreferredCategoriesView: View {
                             value: selectedCategories.contains(category.name)
                         )
                         .accessibilityIdentifier("category-\(category.name)")
-                        .accessibilityAddTraits(selectedCategories.contains(category.name) ? .isSelected : [])
+                        .accessibilityAddTraits(
+                            selectedCategories.contains(category.name) ? .isSelected : []
+                        )
                     }
                 }
             }
@@ -101,12 +103,14 @@ struct SelectPreferredCategoriesView: View {
                 }
                 .disabled(selectedCategories.count < 3)
                 .buttonStyle(.fullWidth)
-                .simultaneousGesture(TapGesture().onEnded {
-                    Task {
-                        saveCategories()
+                .simultaneousGesture(
+                    TapGesture().onEnded {
+                        Task {
+                            saveCategories()
+                        }
                     }
-                })
-                
+                )
+
                 Text("You can change your preferences later in settings.")
                     .font(.footnote)
                     .foregroundStyle(.secondary)
@@ -115,19 +119,19 @@ struct SelectPreferredCategoriesView: View {
             .padding(.horizontal)
         }
     }
-    
+
     private func saveCategories() {
         withErrorReporting {
             try database.write { db in
                 // Clear existing preferred categories
                 try PreferredTopic.delete().execute(db)
-                
+
                 // Insert selected categories
                 for category in selectedCategories {
                     let preferredCategory = PreferredTopic(name: category)
                     try PreferredTopic.insert(preferredCategory).execute(db)
                 }
-                
+
                 Log.shared.info("Saved \(selectedCategories.count) preferred categories")
             }
         }

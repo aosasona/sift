@@ -1,3 +1,4 @@
+import CoreML
 import FeedKit
 //
 //  FeedManager.swift
@@ -6,7 +7,6 @@ import FeedKit
 //  Created by Ayodeji Osasona on 25/05/2025.
 //
 import Foundation
-import CoreML
 import GRDB
 import NaturalLanguage
 import Readability
@@ -22,20 +22,15 @@ struct FeedItem {
 
 class FeedManager: ObservableObject {
     private let database: any DatabaseWriter
-    private let tokenMap: Vocab
+    private let tk = Sift.Tokenizer()
 
     @MainActor
     private let readability = Readability()
 
-    //    @Published var followedFeeds: [Feed] = []
+    @Published var isRefreshing: Bool = false
 
     init(db: any DatabaseWriter) {
         self.database = db
-        
-        guard let tokenMap: Vocab = loadJson(from: "tokenizer") else {
-            fatalError("Failed to load tokenizer data")
-        }
-        self.tokenMap = tokenMap
     }
 
     func refreshAll() async {
@@ -62,6 +57,9 @@ class FeedManager: ObservableObject {
     }
 
     private func refreshFeed(_ feed: Feed, db: Database) async throws {
+        Log.shared.info("Refreshing feed: \(feed.title)")
+        self.isRefreshing = true
+
         guard let items = try await self.loadFeedDetails(feed) else {
             Log.shared.error("Failed to load feed details for \(feed.title)")
             return
@@ -85,19 +83,40 @@ class FeedManager: ObservableObject {
             let textContent = parsed.textContent
             let excerpt = parsed.excerpt
 
+            // Generate predictions for the article
+            let tokenized = self.tk.tokenize(textContent)
+
+            guard
+                let inputIdsArray = try? MLMultiArray(
+                    shape: [NSNumber(value: tk.maxLength)],
+                    dataType: .int32
+                )
+            else {
+                Log.shared.error("Failed to create MLMultiArray for input IDs")
+                continue
+            }
+
+            for i in 0..<tk.maxLength {
+                inputIdsArray[i] = NSNumber(value: tokenized[i])
+            }
+
+            let model = try NewsClassifier()
+            let output = try await model.prediction(
+                input: NewsClassifierInput(embedding_input: inputIdsArray)
+            )
+
             let article = Article(
                 title: title,
                 url: item.link,
                 htmlContent: htmlContent,
                 textContent: textContent,
                 summary: excerpt.isEmpty
-                    ? self.sumamrizeContent(title: title, text: textContent)
+                    ? self.summarizeContent(title: title, text: textContent)
                     : excerpt,
+                label: output.classLabel,
                 publishedAt: Date(),
                 feedID: feed.id!,
             )
-            
-            // Generate predictions for the article
 
             try await self.database.write { db in
                 // Insert the article into the database
@@ -110,8 +129,26 @@ class FeedManager: ObservableObject {
                         """,
                     arguments: [feed.id!]
                 )
+
             }
+
+            // Save the probabilities for the article
+            try await self.database.write { db in
+                for (label, probability) in output.classLabel_probs {
+                    try db.execute(
+                        sql: """
+                            INSERT INTO predictions (articleId, label, confidence, createdAt)
+                            VALUES (?, ?, ?, CURRENT_TIMESTAMP)
+                            """,
+                        arguments: [label, probability, article.id!]
+                    )
+                }
+            }
+
+            Log.shared.info("Inserted article: \(article.title) with label \(article.label)")
         }
+
+        self.isRefreshing = false
     }
 
     private func loadFeedDetails(_ feed: Feed) async throws -> [FeedItem]? {
@@ -164,7 +201,7 @@ class FeedManager: ObservableObject {
         return String(data: data, encoding: .utf8)
     }
 
-    private func sumamrizeContent(title: String, text: String) -> String {
+    private func summarizeContent(title: String, text: String) -> String {
         let tokenizer = NLTokenizer(unit: .sentence)
         tokenizer.string = text
 

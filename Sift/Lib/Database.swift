@@ -77,24 +77,6 @@ extension AppDatabase {
                 t.column("lastSyncedAt", .datetime)
             }
 
-            // Articles
-            try db.create(table: "articles") { t in
-                t.autoIncrementedPrimaryKey("id")
-                t.column("title", .text).notNull()
-                t.column("url", .text).notNull().unique(onConflict: .ignore)
-                t.column("description", .text).notNull().defaults(to: "")
-                t.column("htmlContent", .text).notNull().defaults(to: "")
-                t.column("textContent", .text).notNull().defaults(to: "")
-                t.column("summary", .text).notNull().defaults(to: "")
-                t.column("publishedAt", .datetime).notNull()
-                t.column("feedId", .integer).notNull().references(
-                    "feeds",
-                    column: "id",
-                    onDelete: .cascade
-                )
-                t.column("createdAt", .datetime).notNull().defaults(sql: "CURRENT_TIMESTAMP")
-            }
-
             // LabelSets
             try db.create(table: "label_sets") { t in
                 t.column("version", .integer).primaryKey().unique().notNull().defaults(to: 1)  // Version of the label set
@@ -117,6 +99,25 @@ extension AppDatabase {
                 t.uniqueKey(["set", "name"])
             }
 
+            // Articles
+            try db.create(table: "articles") { t in
+                t.autoIncrementedPrimaryKey("id")
+                t.column("title", .text).notNull()
+                t.column("url", .text).notNull().unique(onConflict: .ignore)
+                t.column("description", .text).notNull().defaults(to: "")
+                t.column("htmlContent", .text).notNull().defaults(to: "")
+                t.column("textContent", .text).notNull().defaults(to: "")
+                t.column("summary", .text).notNull().defaults(to: "")
+                t.column("publishedAt", .datetime).notNull()
+                t.column("feedId", .integer).notNull().references(
+                    "feeds",
+                    column: "id",
+                    onDelete: .cascade
+                )
+                t.column("createdAt", .datetime).notNull().defaults(sql: "CURRENT_TIMESTAMP")
+                t.column("label", .text).notNull().defaults(to: "Uncategorized")
+            }
+
             // Predictions
             try db.create(table: "predictions") { t in
                 t.autoIncrementedPrimaryKey("id")
@@ -125,15 +126,11 @@ extension AppDatabase {
                     column: "id",
                     onDelete: .cascade
                 )
-                t.column("labelId", .integer).notNull().references(
-                    "labels",
-                    column: "id",
-                    onDelete: .cascade
-                )
+                t.column("label", .text).notNull().defaults(to: "Uncategorized")
                 t.column("confidence", .real).notNull().defaults(to: 0.0)
                 t.column("createdAt", .datetime).notNull().defaults(sql: "CURRENT_TIMESTAMP")
 
-                t.uniqueKey(["articleId", "labelId"])
+                t.uniqueKey(["articleId", "label"])
             }
         }
 

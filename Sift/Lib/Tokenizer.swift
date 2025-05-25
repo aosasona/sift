@@ -55,6 +55,7 @@ struct Tokenizer {
         let padded = Array(
             ids.prefix(maxLength) + Array(repeating: padIndex, count: max(0, maxLength - ids.count))
         )
+
         return padded.map { Int32($0) }  // Convert to Int32
     }
 }

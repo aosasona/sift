@@ -45,6 +45,7 @@ struct Article: Hashable, Identifiable {
     var htmlContent: String?
     var textContent: String?
     var summary: String?
+    var label: String
     
     @Column(as: Date.ISO8601Representation.self)
     var publishedAt: Date
@@ -85,7 +86,7 @@ struct Category: Hashable, Identifiable {
 struct Prediction: Hashable, Identifiable {
     var id: Int?
     var articleId: Article.ID
-    var label: Category.ID
+    var label: String
     var confidence: Double
     
     @Column(as: Date.ISO8601Representation?.self)
