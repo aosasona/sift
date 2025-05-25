@@ -5,28 +5,39 @@
 //  Created by Ayodeji Osasona on 23/05/2025.
 //
 
-import SwiftUI
 import SharingGRDB
+import SwiftUI
 
 @main
 struct SiftApp: App {
-    @AppStorage(AppStorageKey.hasCompletedOnboarding.rawValue) private var hasCompletedOnboarding: Bool = false
-    @AppStorage(AppStorageKey.colorScheme.rawValue) private var rawPreferredColorScheme: String = PreferredColorScheme.system.rawValue
+    var feedManager: FeedManager?
     
+    @AppStorage(AppStorageKey.hasCompletedOnboarding.rawValue) private var hasCompletedOnboarding:
+        Bool = false
+    @AppStorage(AppStorageKey.colorScheme.rawValue) private var rawPreferredColorScheme: String =
+        PreferredColorScheme.system.rawValue
+
     init() {
-        try! prepareDependencies {
-            $0.defaultDatabase = try AppDatabase.init().getDatabase()
+        let appDatabase = try! AppDatabase.init()
+        prepareDependencies {
+            $0.defaultDatabase = appDatabase.getDatabase()
         }
+        
+        self.feedManager = FeedManager(db: appDatabase.getDatabase())
     }
-    
+
     var body: some Scene {
         WindowGroup {
             if !hasCompletedOnboarding {
                 WelcomeView()
-                    .preferredColorScheme(PreferredColorScheme.fromString(rawPreferredColorScheme).colorScheme)
+                    .preferredColorScheme(
+                        PreferredColorScheme.fromString(rawPreferredColorScheme).colorScheme
+                    )
             } else {
                 TabbedRootView()
-                    .preferredColorScheme(PreferredColorScheme.fromString(rawPreferredColorScheme).colorScheme)
+                    .preferredColorScheme(
+                        PreferredColorScheme.fromString(rawPreferredColorScheme).colorScheme
+                    )
             }
         }
     }

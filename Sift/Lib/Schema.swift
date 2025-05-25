@@ -26,7 +26,7 @@ struct Feed: Hashable, Identifiable  {
     var description: String?
     
     @Column("icon")
-    var imageURL: String?
+    var imageURL: String? = ""
     
     @Column(as: Date.ISO8601Representation?.self)
     var addedAt: Date? = Date()

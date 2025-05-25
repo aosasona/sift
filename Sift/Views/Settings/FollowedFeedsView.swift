@@ -83,12 +83,16 @@ struct FollowedFeedsView: View {
         .searchable(text: $searchText, prompt: "Search feeds")
         .toolbar {
             ToolbarItem(placement: .navigationBarTrailing) {
-                Button(action: {}) {
+                Button(action: {
+                    showAddFeedSheet.toggle()
+                }) {
                     Image(systemName: "plus")
                 }
             }
         }
         .sheet(isPresented: $showAddFeedSheet) {
+            AddFeedView()
+                .navigationTitle("Add Feed")
         }
     }
 

@@ -71,8 +71,8 @@ extension AppDatabase {
                 t.autoIncrementedPrimaryKey("id")
                 t.column("title", .text).notNull()
                 t.column("url", .text).notNull().unique(onConflict: .ignore)
-                t.column("description", .text).notNull().defaults(to: "")
-                t.column("icon", .text).notNull().defaults(to: "")
+                t.column("description", .text).defaults(to: "")
+                t.column("icon", .text).defaults(to: "")
                 t.column("addedAt", .datetime).notNull().defaults(sql: "CURRENT_TIMESTAMP")
                 t.column("lastSyncedAt", .datetime)
             }

@@ -12,6 +12,7 @@
 		EA2205152DE2462A00BA85A8 /* FeedKit in Frameworks */ = {isa = PBXBuildFile; productRef = EA2205142DE2462A00BA85A8 /* FeedKit */; };
 		EA2205172DE2462A00BA85A8 /* XMLKit in Frameworks */ = {isa = PBXBuildFile; productRef = EA2205162DE2462A00BA85A8 /* XMLKit */; };
 		EA22051A2DE253C900BA85A8 /* AlertToast in Frameworks */ = {isa = PBXBuildFile; productRef = EA2205192DE253C900BA85A8 /* AlertToast */; };
+		EAC4C0C72DE2C580000500A1 /* Readability in Frameworks */ = {isa = PBXBuildFile; productRef = EAC4C0C62DE2C580000500A1 /* Readability */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -32,6 +33,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				EA2205152DE2462A00BA85A8 /* FeedKit in Frameworks */,
+				EAC4C0C72DE2C580000500A1 /* Readability in Frameworks */,
 				EA2205102DE23CB400BA85A8 /* Flow in Frameworks */,
 				EA2204FD2DE1F60E00BA85A8 /* SharingGRDB in Frameworks */,
 				EA22051A2DE253C900BA85A8 /* AlertToast in Frameworks */,
@@ -83,6 +85,7 @@
 				EA2205142DE2462A00BA85A8 /* FeedKit */,
 				EA2205162DE2462A00BA85A8 /* XMLKit */,
 				EA2205192DE253C900BA85A8 /* AlertToast */,
+				EAC4C0C62DE2C580000500A1 /* Readability */,
 			);
 			productName = Sift;
 			productReference = EA2BB9652DDFEFF400E3829F /* Sift.app */;
@@ -117,6 +120,7 @@
 				EA22050E2DE23CB400BA85A8 /* XCRemoteSwiftPackageReference "SwiftUI-Flow" */,
 				EA2205132DE2462A00BA85A8 /* XCRemoteSwiftPackageReference "FeedKit" */,
 				EA2205182DE253C900BA85A8 /* XCRemoteSwiftPackageReference "AlertToast" */,
+				EAC4C0C52DE2C580000500A1 /* XCRemoteSwiftPackageReference "swift-readability" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = EA2BB9662DDFEFF400E3829F /* Products */;
@@ -384,6 +388,14 @@
 				minimumVersion = 1.3.9;
 			};
 		};
+		EAC4C0C52DE2C580000500A1 /* XCRemoteSwiftPackageReference "swift-readability" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/Ryu0118/swift-readability";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 0.1.0;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -411,6 +423,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = EA2205182DE253C900BA85A8 /* XCRemoteSwiftPackageReference "AlertToast" */;
 			productName = AlertToast;
+		};
+		EAC4C0C62DE2C580000500A1 /* Readability */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = EAC4C0C52DE2C580000500A1 /* XCRemoteSwiftPackageReference "swift-readability" */;
+			productName = Readability;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
