@@ -12,11 +12,11 @@ struct WelcomeView: View {
         NavigationStack {
             VStack {
                 Text("Welcome to Sift!")
-                    .font(.largeTitle)
-                    .padding(.vertical, 8)
+                    .font(.system(size: 36, weight: .medium))
+                    .padding(.vertical, 6)
 
                 Text("Your feed, enhanced by AI.")
-                    .font(.subheadline)
+                    .font(.system(size: 15, weight: .regular))
                     .foregroundStyle(.secondary)
             }
             .frame(maxHeight: .infinity)
