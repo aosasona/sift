@@ -133,6 +133,13 @@ extension AppDatabase {
             }
         }
 
+        migrator.registerMigration("add pubished date to articles") { database in
+            // Add published date to articles
+            try database.alter(table: "articles") { table in
+                table.add(column: "publishedAt", .datetime).notNull().defaults(to: Date())
+            }
+        }
+
         return migrator
     }
 }

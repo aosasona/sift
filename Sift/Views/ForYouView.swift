@@ -16,7 +16,7 @@ struct ForYouView: View {
             """
             SELECT * FROM articles
             WHERE label IN (SELECT category from preferred_categories)
-            ORDER BY createdAt DESC
+            ORDER BY publishedAt DESC
             """
         )
     ) var articles: [Article]
@@ -45,7 +45,3 @@ struct ForYouView: View {
         }
     }
 }
-
-//#Preview {
-//    ForYouView()
-//}

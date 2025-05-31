@@ -20,12 +20,12 @@ struct SiftApp: App {
     @State private var refreshTask: Task<Void, Never>? = nil
 
     init() {
-        let appDatabase = try! AppDatabase.init()
+        let appDatabase = try! AppDatabase()
         prepareDependencies {
             $0.defaultDatabase = appDatabase.getDatabase()
         }
 
-        self.feedManager = FeedManager(db: appDatabase.getDatabase())
+        feedManager = FeedManager(db: appDatabase.getDatabase())
     }
 
     var body: some Scene {
@@ -46,7 +46,7 @@ struct SiftApp: App {
                     .environmentObject(feedManager!)
                     .task {
                         while true {
-                            try? await Task.sleep(nanoseconds: 60 * 60 * 1_000_000_000)  // 1 hour
+                            try? await Task.sleep(nanoseconds: 30 * 60 * 1_000_000_000) // 30 minutes
                             await feedManager?.refreshAll()
                         }
                     }

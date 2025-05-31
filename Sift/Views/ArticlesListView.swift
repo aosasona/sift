@@ -25,7 +25,6 @@ struct ArticlesListView: View {
 
     var body: some View {
         NavigationStack {
-
             ArticlesList(articles: articles) {
                 ScrollView(.horizontal, showsIndicators: false) {
                     HStack(spacing: 8) {
@@ -83,8 +82,8 @@ struct ArticlesListView: View {
                 let articles = try #sql<Article>(
                     """
                     SELECT * FROM \(Article.self)
-                    WHERE \(bind: currentCategory  ?? "") = '' OR label = \(bind: currentCategory ?? "")
-                    ORDER BY createdAt DESC
+                    WHERE \(bind: currentCategory ?? "") = '' OR label = \(bind: currentCategory ?? "")
+                    ORDER BY publishedAt DESC
                     """
                 ).fetchAll(db)
 

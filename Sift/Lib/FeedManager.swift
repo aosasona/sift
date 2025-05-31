@@ -1,5 +1,6 @@
 import CoreML
 import FeedKit
+
 //
 //  FeedManager.swift
 //  Sift
@@ -18,6 +19,7 @@ struct FeedItem {
     let link: String
     let htmlContent: String?
     let textContent: String?
+    let publishedAt: Date?
 }
 
 @MainActor
@@ -28,12 +30,23 @@ class FeedManager: ObservableObject, @unchecked Sendable {
     @Published var isRefreshing: Bool = false
 
     init(db: any DatabaseWriter) {
-        self.database = db
+        database = db
     }
 
     func refreshAll() async {
+        // if isRefreshing {
+        //     Log.shared.info("Refresh already in progress, skipping")
+        //     return
+        // }
+
         DispatchQueue.main.async {
             self.isRefreshing = true
+        }
+
+        defer {
+            DispatchQueue.main.async {
+                self.isRefreshing = false
+            }
         }
 
         do {
@@ -57,15 +70,12 @@ class FeedManager: ObservableObject, @unchecked Sendable {
         } catch {
             Log.shared.error("Failed to refresh feeds: \(error.localizedDescription)", error: error)
         }
-        DispatchQueue.main.async {
-            self.isRefreshing = false
-        }
     }
 
     func refreshFeed(_ feed: Feed) async throws {
         Log.shared.info("Refreshing feed: \(feed.title)")
 
-        guard let items = try await self.loadFeedDetails(feed) else {
+        guard let items = try await loadFeedDetails(feed) else {
             Log.shared.error("Failed to load feed details for \(feed.title)")
             return
         }
@@ -83,25 +93,26 @@ class FeedManager: ObservableObject, @unchecked Sendable {
             }
 
             // Extract text content and HTML
-            guard let htmlContent = try? await self.loadHTML(url: item.link) else {
+            // TODO: replace this block with a more robust Go readability version
+            guard let htmlContent = try? await loadHTML(url: item.link) else {
                 Log.shared.error("Failed to load HTML for \(item.link)")
                 continue
             }
 
-            guard let parsed = self.parseHtml(url: item.link, html: htmlContent) else {
+            guard let parsed = parseHtml(url: item.link, html: htmlContent) else {
                 Log.shared.error("Failed to parse HTML for \(item.link)")
                 continue
             }
 
             // Heuristics-based summarization
-            let summary = self.summarizeContent(
+            let summary = summarizeContent(
                 title: parsed.title,
                 text: parsed.textContent ?? "",
                 n: 2
             )
 
             // Generate predictions for the article (we will use the title and summary)
-            let tokenized = self.tk.tokenize("\(parsed.title) \(summary)")
+            let tokenized = tk.tokenize("\(parsed.title) \(summary)")
 
             guard
                 let inputIdsArray = try? MLMultiArray(
@@ -113,7 +124,7 @@ class FeedManager: ObservableObject, @unchecked Sendable {
                 continue
             }
 
-            for i in 0..<tk.maxLength {
+            for i in 0 ..< tk.maxLength {
                 inputIdsArray[i] = NSNumber(value: tokenized[i])
             }
 
@@ -132,25 +143,21 @@ class FeedManager: ObservableObject, @unchecked Sendable {
                 label: output.classLabel,
                 feedID: feed.id!,
                 createdAt: Date(),
+                publishedAt: item.publishedAt ?? Date()
             )
 
             //            var articleId: Int?
-            try await self.database.write { db in
+            try await database.write { db in
                 // Insert the article into the database
                 try Article.insert(article).execute(db)
-                //                guard let id = try Article.insert(article).returning(\.id).fetchOne(db) else {
-                //                    Log.shared.error("Failed to insert article: \(article.title)")
-                //                    return
-                //                }
 
                 // Update the feed's last sync date
                 try db.execute(
                     sql: """
-                        UPDATE feeds SET lastSyncedAt = CURRENT_TIMESTAMP WHERE id = ?
-                        """,
+                    UPDATE feeds SET lastSyncedAt = CURRENT_TIMESTAMP WHERE id = ?
+                    """,
                     arguments: [feed.id!]
                 )
-
             }
 
             //            // Save the probabilities for the article
@@ -174,39 +181,41 @@ class FeedManager: ObservableObject, @unchecked Sendable {
         let parsedFeed = try await FeedKit.Feed(urlString: feed.url)
 
         switch parsedFeed {
-        case .rss(let rss):
+        case let .rss(rss):
             return rss.channel?.items?.compactMap { item in
-                return FeedItem(
+                FeedItem(
                     title: item.title ?? item.link ?? "Untitled",
                     description: item.description,
                     link: item.link ?? "",
                     htmlContent: nil,
-                    textContent: nil
+                    textContent: nil,
+                    publishedAt: item.pubDate
                 )
             }
 
-        case .atom(let atom):
+        case let .atom(atom):
             return atom.entries?.compactMap { entry in
-                return FeedItem(
+                FeedItem(
                     title: entry.title ?? entry.links?.first?.attributes?.href ?? feed.url,
                     description: entry.summary?.text,
                     link: entry.links?.first?.attributes?.href ?? feed.url,
                     htmlContent: nil,
-                    textContent: nil
+                    textContent: nil,
+                    publishedAt: entry.published ?? entry.updated ?? Date()
                 )
             }
 
-        case .json(let json):
+        case let .json(json):
             return json.items?.compactMap { item in
-                return FeedItem(
+                FeedItem(
                     title: item.title ?? item.url ?? "Untitled",
                     description: item.summary,
                     link: item.url ?? feed.url,
                     htmlContent: item.contentHtml,
-                    textContent: item.contentText
+                    textContent: item.contentText,
+                    publishedAt: item.datePublished ?? Date()
                 )
             }
-
         }
     }
 
@@ -247,7 +256,8 @@ class FeedManager: ObservableObject, @unchecked Sendable {
                 description: description.isEmpty ? nil : description,
                 link: link.isEmpty ? url : link,
                 htmlContent: htmlContent,
-                textContent: textContent
+                textContent: textContent,
+                publishedAt: nil
             )
         } catch {
             return .none
@@ -262,15 +272,15 @@ class FeedManager: ObservableObject, @unchecked Sendable {
         let titleKeywords = Set(title.lowercased().split(separator: " ").map { String($0) })
 
         // Use the tokenizer to enumerate sentences instead of splitting on naive newlines
-        tokenizer.enumerateTokens(in: text.startIndex..<text.endIndex) { (range, _) -> Bool in
+        tokenizer.enumerateTokens(in: text.startIndex ..< text.endIndex) { range, _ -> Bool in
             let sentence = String(text[range]).trimmingCharacters(in: .whitespacesAndNewlines)
             guard !sentence.isEmpty else { return true }
 
-            let lengthScore = min(Double(sentence.count) / 100.0, 1.0)  // normalize length to a 0-1 scale
-            let positionScore = Double(scoredSentences.count) * 0.1  // earlier = better
-            let keywordScore = titleKeywords.reduce(0) { (currentScore, keyword) in
+            let lengthScore = min(Double(sentence.count) / 100.0, 1.0) // normalize length to a 0-1 scale
+            let positionScore = Double(scoredSentences.count) * 0.1 // earlier = better
+            let keywordScore = titleKeywords.reduce(0) { currentScore, keyword in
                 currentScore + (sentence.lowercased().contains(keyword) ? 1.0 : 0.0)
-            }  // normalize keyword presence to a 0-1 scale
+            } // normalize keyword presence to a 0-1 scale
 
             let totalScore = (lengthScore + positionScore + keywordScore)
             scoredSentences.append((sentence, totalScore))
@@ -280,9 +290,9 @@ class FeedManager: ObservableObject, @unchecked Sendable {
         // Sort by score and take the top N
         let topSentences =
             scoredSentences
-            .sorted(by: { $0.score > $1.score })
-            .prefix(n)
-            .map { $0.sentence }
+                .sorted(by: { $0.score > $1.score })
+                .prefix(n)
+                .map { $0.sentence }
 
         return topSentences.joined(separator: " ")
     }
