@@ -1,4 +1,5 @@
 import Dependencies
+
 //
 //  Database.swift
 //  Sift
@@ -50,13 +51,13 @@ public final class AppDatabase: Sendable {
     }
 }
 
-extension AppDatabase {
-    public var migrator: DatabaseMigrator {
+public extension AppDatabase {
+    var migrator: DatabaseMigrator {
         var migrator = DatabaseMigrator()
 
-        #if DEBUG
-            migrator.eraseDatabaseOnSchemaChange = true
-        #endif
+        // #if DEBUG
+        //     migrator.eraseDatabaseOnSchemaChange = true
+        // #endif
 
         migrator.registerMigration("create tables") { db in
             // Preferred Categories
@@ -79,8 +80,8 @@ extension AppDatabase {
 
             // LabelSets
             try db.create(table: "label_sets") { t in
-                t.column("version", .integer).primaryKey().unique().notNull().defaults(to: 1)  // Version of the label set
-                t.column("labelsJson", .text).notNull().unique(onConflict: .ignore)  // JSON representation of the labels
+                t.column("version", .integer).primaryKey().unique().notNull().defaults(to: 1) // Version of the label set
+                t.column("labelsJson", .text).notNull().unique(onConflict: .ignore) // JSON representation of the labels
                 t.column("createdAt", .datetime).notNull().defaults(sql: "CURRENT_TIMESTAMP")
             }
 
@@ -92,8 +93,8 @@ extension AppDatabase {
                     column: "version",
                     onDelete: .cascade
                 )
-                t.column("name", .text).notNull()  // Label name (category)
-                t.column("index", .integer).notNull().defaults(to: 0)  // The index of the label in the list (this is what will be outputted by the text classifier model)
+                t.column("name", .text).notNull() // Label name (category)
+                t.column("index", .integer).notNull().defaults(to: 0) // The index of the label in the list (this is what will be outputted by the text classifier model)
                 t.column("createdAt", .datetime).notNull().defaults(sql: "CURRENT_TIMESTAMP")
 
                 t.uniqueKey(["set", "name"])

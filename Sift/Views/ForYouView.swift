@@ -9,8 +9,6 @@ import SharingGRDB
 import SwiftUI
 
 struct ForYouView: View {
-    @EnvironmentObject var feedManager: FeedManager
-
     @FetchAll(
         #sql(
             """
@@ -25,23 +23,6 @@ struct ForYouView: View {
         NavigationStack {
             ArticlesList(articles: articles) {}
                 .navigationTitle("For You")
-                .toolbar {
-                    ToolbarItem(placement: .topBarTrailing) {
-                        if feedManager.isRefreshing {
-                            ProgressView()
-                                .progressViewStyle(CircularProgressViewStyle())
-                        } else {
-                            Button(action: {
-                                Task {
-                                    await feedManager.refreshAll()
-                                }
-                            }) {
-                                Image(systemName: "arrow.clockwise")
-                                    .foregroundColor(.accentColor)
-                            }
-                        }
-                    }
-                }
         }
     }
 }

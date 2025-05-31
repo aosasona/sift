@@ -34,11 +34,6 @@ class FeedManager: ObservableObject, @unchecked Sendable {
     }
 
     func refreshAll() async {
-        // if isRefreshing {
-        //     Log.shared.info("Refresh already in progress, skipping")
-        //     return
-        // }
-
         DispatchQueue.main.async {
             self.isRefreshing = true
         }
