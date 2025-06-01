@@ -25,7 +25,6 @@ struct FeedItem {
 @MainActor
 class FeedManager: ObservableObject, @unchecked Sendable {
     private let database: any DatabaseWriter
-    private let tk = Sift.Tokenizer()
 
     @Published var isRefreshing: Bool = false
 
@@ -106,26 +105,10 @@ class FeedManager: ObservableObject, @unchecked Sendable {
                 n: 2
             )
 
-            // Generate predictions for the article (we will use the title and summary)
-            let tokenized = tk.tokenize("\(parsed.title) \(summary)")
-
-            guard
-                let inputIdsArray = try? MLMultiArray(
-                    shape: [1, NSNumber(value: tk.maxLength)],
-                    dataType: .int32
-                )
-            else {
-                Log.shared.error("Failed to create MLMultiArray for input IDs")
-                continue
-            }
-
-            for i in 0 ..< tk.maxLength {
-                inputIdsArray[i] = NSNumber(value: tokenized[i])
-            }
-
-            let model = try NewsClassifier()
+            // Get predictions
+            let model = try ArticleClassifier()
             let output = try await model.prediction(
-                input: NewsClassifierInput(embedding_input: inputIdsArray),
+                input: ArticleClassifierInput(text: summary)
             )
 
             let article = Article(
@@ -135,7 +118,7 @@ class FeedManager: ObservableObject, @unchecked Sendable {
                 htmlContent: parsed.htmlContent,
                 textContent: parsed.textContent,
                 summary: summary,
-                label: output.classLabel,
+                label: output.label,
                 feedID: feed.id!,
                 createdAt: Date(),
                 publishedAt: item.publishedAt ?? Date()

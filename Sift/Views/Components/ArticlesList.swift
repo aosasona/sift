@@ -31,24 +31,6 @@ struct ArticlesList<Content: View>: View {
     @State private var searchText = ""
 
     var body: some View {
-        if articles.isEmpty {
-            VStack {
-                Image(systemName: "newspaper")
-                    .font(.system(size: 64))
-                    .foregroundColor(.secondary)
-                    .padding()
-
-                Text("No articles found")
-                    .foregroundColor(.secondary)
-                    .padding()
-            }
-        } else {
-            articlesListView()
-        }
-    }
-
-    @ViewBuilder
-    func articlesListView() -> some View {
         List {
             if let content = content {
                 Section {
@@ -58,6 +40,14 @@ struct ArticlesList<Content: View>: View {
                 .listRowBackground(Color.clear)
                 .listRowSeparator(.hidden)
                 .listRowSeparatorTint(.clear)
+            }
+
+            if articles.isEmpty {
+                emptyView()
+                    .listRowInsets(EdgeInsets())
+                    .listRowBackground(Color.clear)
+                    .listRowSeparator(.hidden)
+                    .listRowSeparatorTint(.clear)
             }
 
             Section {
@@ -119,7 +109,12 @@ struct ArticlesList<Content: View>: View {
             await feedManager.refreshAll()
         }
         .toolbar {
-            ToolbarItem(placement: .topBarTrailing) {
+            ToolbarItemGroup(placement: .topBarTrailing) {
+                if feedManager.isRefreshing {
+                    ProgressView()
+                        .tint(.accentColor)
+                }
+
                 Menu {
                     Picker("Sort by", selection: $orderBy) {
                         Text("Title (A-Z)").tag(OrderBy.title(.ascending))
@@ -136,6 +131,26 @@ struct ArticlesList<Content: View>: View {
                 }
             }
         }
+    }
+
+    @ViewBuilder
+    func emptyView() -> some View {
+        VStack {
+            Spacer()
+
+            Image(systemName: "newspaper")
+                .font(.system(size: 50))
+                .foregroundColor(.secondary)
+                .padding()
+
+            Text("No articles found")
+                .foregroundColor(.secondary)
+
+            Spacer()
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .frame(minHeight: UIScreen.main.bounds.height * 0.6)
+        .background(Color.clear)
     }
 
     @ViewBuilder func publishDateView(article: Article) -> some View {

@@ -38,8 +38,8 @@ func importLabelSets(_ databaseWriter: any DatabaseWriter) throws {
     try databaseWriter.write { db in
         let versions =
             try LabelSet
-            .order(by: \.id)
-            .fetchAll(db)
+                .order(by: \.id)
+                .fetchAll(db)
 
         let latestVersion = versions.last
 
@@ -61,7 +61,7 @@ func importLabelSets(_ databaseWriter: any DatabaseWriter) throws {
         Log.shared.info("Inserted new label set version: \(newVersion)")
 
         // Insert the labels
-        for i in 0..<labels.count {
+        for i in 0 ..< labels.count {
             let label = Category(labelSetVersion: labelSet.id, name: labels[i], index: i)
             try Category.insert(label).execute(db)
         }

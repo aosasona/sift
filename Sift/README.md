@@ -1,11 +1,19 @@
-# Sift
+# Requirements
 
-Sift is a feed reader for various sources, including RSS, Atom, JSON feeds, and more, powered by the AI model trained for the Advanced AI and Applications module.
+- The Go toolchain
+- Xcode
+- [Mise](https://mise.jdx.dev/)
 
-## Pre-requisites
-To run Sift, ensure you have the following installed:
+# Compiling
 
-- XCode 15.0 or later
-- Swift 5.10 or later
-- Swift Package Manager
-- iOS 18.0 or later
+- You need to install the gomobile command locally for some reason, running `go mod tidy` can accidentally remove it, so you need to re-install it like this:
+
+```sh
+go get golang.org/x/mobile/cmd/gomobile
+```
+
+- Compile the framework by running the command below from the root of the project (`../`)
+
+```sh
+mise run build:core
+```

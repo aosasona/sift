@@ -21,11 +21,11 @@ struct SelectPreferredCategoriesView: View {
 
     var indicatorColor: Color {
         switch selectedCategories.count {
-        case 0..<3:
+        case 0 ..< 3:
             return .red
-        case 3..<6:
+        case 3 ..< 6:
             return .orange
-        case 6..<MaxPreferredCategories:
+        case 6 ..< MaxPreferredCategories:
             return .yellow
         default:
             return .green
@@ -90,8 +90,8 @@ struct SelectPreferredCategoriesView: View {
                         )
                     }
                 }
+                .frame(maxWidth: .infinity, alignment: .leading)
             }
-
         }
         .navigationBarBackButtonHidden()
         .frame(alignment: .leading)
@@ -139,9 +139,9 @@ struct SelectPreferredCategoriesView: View {
 }
 
 #Preview {
-    let _ = try! prepareDependencies {
-        $0.defaultDatabase = try AppDatabase.init().getDatabase()
-    }
+    // _ = try! prepareDependencies {
+    //     $0.defaultDatabase = try AppDatabase().getDatabase()
+    // }
 
     SelectPreferredCategoriesView()
 }

@@ -55,9 +55,9 @@ public extension AppDatabase {
     var migrator: DatabaseMigrator {
         var migrator = DatabaseMigrator()
 
-        // #if DEBUG
-        //     migrator.eraseDatabaseOnSchemaChange = true
-        // #endif
+        #if DEBUG
+            migrator.eraseDatabaseOnSchemaChange = true
+        #endif
 
         migrator.registerMigration("create tables") { db in
             // Preferred Categories
@@ -138,6 +138,13 @@ public extension AppDatabase {
             // Add published date to articles
             try database.alter(table: "articles") { table in
                 table.add(column: "publishedAt", .datetime).notNull().defaults(to: Date())
+            }
+        }
+
+        migrator.registerMigration("add markdown content to articles") { Database in
+            // Add markdown content to articles
+            try Database.alter(table: "articles") { table in
+                table.add(column: "markdownContent", .text).defaults(to: "")
             }
         }
 
