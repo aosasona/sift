@@ -66,39 +66,70 @@ struct ArticlesList<Content: View>: View {
                             articleThumbnail(article: article)
 
                             VStack(alignment: .leading, spacing: 4) {
-                                Text(article.title)
-                                    .font(.headline)
-                                    .lineLimit(2)
-
-                                Text(article.summary ?? "No description available")
-                                    .font(.subheadline)
-                                    .foregroundColor(.secondary)
-                                    .lineLimit(2)
-                                    .truncationMode(.tail)
-
-                                HStack(alignment: .center, spacing: 1) {
+                                HStack {
                                     if article.isBookmarked {
                                         Image(systemName: "star.fill")
                                             .foregroundColor(.yellow)
                                             .font(.system(size: 13))
                                     }
 
-                                    Text(article.label.capitalized)
-                                        .font(.caption)
-                                        .foregroundColor(article.labelColor)
-                                        .padding(.vertical, 4)
-                                        .padding(.horizontal, 6)
-                                        .background(article.labelColor.opacity(0.2))
-                                        .cornerRadius(12)
-
-                                    Spacer()
-
-                                    publishDateView(article: article)
+                                    Text(article.title)
+                                        .font(.headline)
+                                        .lineLimit(2)
                                 }
+
+                                if let summary = article.summary, !summary.isEmpty {
+                                    Text(summary)
+                                        .font(.subheadline)
+                                        .foregroundColor(.secondary)
+                                        .lineLimit(2)
+                                        .truncationMode(.tail)
+                                }
+
+                                articleListItemMetadata(article: article)
                             }
                         }
-                        .opacity(article.isRead ? 0.5 : 1.0)
+                        .opacity(article.isRead ? 0.4 : 1.0)
                         .padding(.vertical, 4)
+                    }
+                    .contextMenu {
+                        if let description = article.description, !description.isEmpty {
+                            Text(description)
+                                .font(.subheadline)
+                                .foregroundColor(.secondary)
+                                .multilineTextAlignment(.leading)
+                                .lineLimit(4)
+                        }
+
+                        if let author = article.author, !author.isEmpty {
+                            Text("By \(author)")
+                                .font(.subheadline)
+                                .foregroundColor(.secondary)
+                        }
+
+                        if let publishedAt = article.publishedAt {
+                            Label(
+                                "Published on \(publishedAt.formatted(date: .abbreviated, time: .shortened))",
+                                systemImage: "calendar"
+                            )
+                            .foregroundColor(.secondary)
+                        }
+
+                        Button {
+                            UIPasteboard.general.string = article.url
+                        } label: {
+                            Label("Copy Link", systemImage: "doc.on.doc")
+                        }
+
+                        if let host = URL(string: article.url)?.host {
+                            Button {
+                                if let hostURL = URL(string: "https://\(host)") {
+                                    UIApplication.shared.open(hostURL)
+                                }
+                            } label: {
+                                Label("Open website in Browser", systemImage: "safari")
+                            }
+                        }
                     }
                     .swipeActions(edge: .trailing, allowsFullSwipe: true) {
                         Button(role: .destructive) {
@@ -173,6 +204,23 @@ struct ArticlesList<Content: View>: View {
                     Image(systemName: "line.3.horizontal.decrease.circle")
                 }
             }
+        }
+    }
+
+    @ViewBuilder
+    func articleListItemMetadata(article: Article) -> some View {
+        HStack(alignment: .center, spacing: 3) {
+            Text(article.label.capitalized)
+                .font(.caption)
+                .foregroundColor(article.labelColor)
+                .padding(.vertical, 4)
+                .padding(.horizontal, 6)
+                .background(article.labelColor.opacity(0.2))
+                .cornerRadius(12)
+
+            Spacer()
+
+            publishDateView(article: article)
         }
     }
 

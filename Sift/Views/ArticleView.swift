@@ -81,9 +81,8 @@ struct ArticleView: View {
                         Text("Web").tag(ViewMode.web)
                     }
                     .pickerStyle(.menu)
-                    
 
-                    // Share the article URL
+                    // Open in the browser
                     Button(action: {
                         if let url = URL(string: article.url) {
                             UIApplication.shared.open(url)
@@ -91,6 +90,14 @@ struct ArticleView: View {
                     }) {
                         Label("Open in Browser", systemImage: "arrow.up.right.square")
                     }
+
+                    // Copy URL
+                    Button(action: {
+                        UIPasteboard.general.string = article.url
+                    }) {
+                        Label("Copy URL", systemImage: "doc.on.doc")
+                    }
+
                 } label: {
                     Image(systemName: "ellipsis.circle")
                         .foregroundColor(.accentColor)
