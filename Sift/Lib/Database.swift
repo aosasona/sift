@@ -55,9 +55,9 @@ public extension AppDatabase {
     var migrator: DatabaseMigrator {
         var migrator = DatabaseMigrator()
 
-        #if DEBUG
-            migrator.eraseDatabaseOnSchemaChange = true
-        #endif
+//        #if DEBUG
+//            migrator.eraseDatabaseOnSchemaChange = true
+//        #endif
 
         migrator.registerMigration("create tables") { db in
             // Preferred Categories
@@ -147,6 +147,25 @@ public extension AppDatabase {
                 table.add(column: "markdownContent", .text).defaults(to: "")
             }
         }
+        
+        migrator.registerMigration("add image URL to articles") { database in
+            // Add image URL to articles
+            try database.alter(table: "articles") { table in
+                table.add(column: "imageURL", .text).defaults(to: "")
+            }
+        }
+        
+        migrator.registerMigration("add more article fields") { database in
+            // Add more fields to articles
+            try database.alter(table: "articles") { table in
+                table.add(column: "author", .text).defaults(to: "")
+                table.add(column: "faviconURL", .text).defaults(to: "")
+                table.add(column: "siteName", .text).defaults(to: "")
+                table.add(column: "isBookmarked", .boolean).notNull().defaults(to: false)
+                table.add(column: "isRead", .boolean).notNull().defaults(to: false)
+            }
+        }
+                
 
         return migrator
     }

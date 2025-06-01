@@ -81,7 +81,7 @@ struct ArticlesListView: View {
             try await database.read { db in
                 let articles = try #sql<Article>(
                     """
-                    SELECT * FROM \(Article.self)
+                    SELECT \(Article.columns) FROM \(Article.self)
                     WHERE \(bind: currentCategory ?? "") = '' OR label = \(bind: currentCategory ?? "")
                     ORDER BY publishedAt DESC
                     """

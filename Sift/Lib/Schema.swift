@@ -52,11 +52,31 @@ struct Article: Hashable, Identifiable {
     @Column("feedId")
     var feedID: Feed.ID
 
-    @Column(as: Date.ISO8601Representation?.self)
+    @Column("createdAt", as: Date.ISO8601Representation?.self)
     var createdAt: Date? = Date()
 
-    @Column(as: Date.ISO8601Representation?.self)
+    @Column("publishedAt", as: Date.ISO8601Representation?.self)
     var publishedAt: Date?
+    
+    @Column("markdownContent")
+    var markdownContent: String?
+    
+    @Column("imageURL")
+    var imageURL: String? = nil
+    
+    @Column("author")
+    var author: String? = nil
+    @Column("faviconURL")
+    var faviconURL: String? = nil
+    
+    @Column("siteName")
+    var siteName: String? = nil
+    
+    @Column("isBookmarked")
+    var isBookmarked: Bool = false
+    
+    @Column("isRead")
+    var isRead: Bool = false
 }
 
 @Table("label_sets")

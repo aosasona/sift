@@ -87,21 +87,17 @@ class FeedManager: ObservableObject, @unchecked Sendable {
             }
 
             // Extract text content and HTML
-            // TODO: replace this block with a more robust Go readability version
-            guard let htmlContent = try? await loadHTML(url: item.link) else {
-                Log.shared.error("Failed to load HTML for \(item.link)")
-                continue
-            }
-
-            guard let parsed = parseHtml(url: item.link, html: htmlContent) else {
+            guard case let .success(parsed) = Core.extractUrlContent(url: item.link) else {
                 Log.shared.error("Failed to parse HTML for \(item.link)")
                 continue
             }
 
             // Heuristics-based summarization
+            Log.shared.info(parsed.htmlContent)
+                
             let summary = summarizeContent(
                 title: parsed.title,
-                text: parsed.textContent ?? "",
+                text: parsed.textContent,
                 n: 2
             )
 
@@ -114,17 +110,21 @@ class FeedManager: ObservableObject, @unchecked Sendable {
             let article = Article(
                 title: parsed.title,
                 url: item.link,
-                description: item.description ?? "",
+                description: parsed.excerpt.isEmpty ? item.description ?? "" : parsed.excerpt,
                 htmlContent: parsed.htmlContent,
                 textContent: parsed.textContent,
                 summary: summary,
                 label: output.label,
                 feedID: feed.id!,
                 createdAt: Date(),
-                publishedAt: item.publishedAt ?? Date()
+                publishedAt: item.publishedAt ?? parsed.publishedAt ?? Date(),
+                markdownContent: parsed.markdownContent,
+                imageURL: parsed.image,
+                author: parsed.author,
+                faviconURL: parsed.favicon,
+                siteName: parsed.siteName
             )
 
-            //            var articleId: Int?
             try await database.write { db in
                 // Insert the article into the database
                 try Article.insert(article).execute(db)
@@ -137,19 +137,6 @@ class FeedManager: ObservableObject, @unchecked Sendable {
                     arguments: [feed.id!]
                 )
             }
-
-            //            // Save the probabilities for the article
-            //            try await self.database.write { db in
-            //                for (label, probability) in output.classLabel_probs {
-            //                    try db.execute(
-            //                        sql: """
-            //                            INSERT INTO predictions (articleId, label, confidence, createdAt)
-            //                            VALUES (?, ?, ?, CURRENT_TIMESTAMP)
-            //                            """,
-            //                        arguments: [label, probability, articleId]
-            //                    )
-            //                }
-            //            }
 
             Log.shared.info("Inserted article: \(article.title) with label \(article.label)")
         }

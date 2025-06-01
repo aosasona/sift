@@ -10,7 +10,7 @@ import SwiftUI
 struct FullWidthButtonStyle: ButtonStyle {
     @Environment(\.isEnabled) private var isEnabled
 
-    let cornerRadius = 10.0
+    let cornerRadius = 12.0
 
     func makeBody(configuration: Configuration) -> some View {
         configuration.label

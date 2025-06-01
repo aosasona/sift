@@ -8,6 +8,8 @@
 import Dependencies
 import SwiftUI
 
+let ThumbnailSize: CGFloat = 80
+
 enum OrderBy: Hashable {
     case title(OrderDirection)
     case createdAt(OrderDirection)
@@ -61,6 +63,8 @@ struct ArticlesList<Content: View>: View {
                 ) { article in
                     NavigationLink(destination: ArticleView(article: article)) {
                         HStack(alignment: .top, spacing: 12) {
+                            articleThumbnail(article: article)
+
                             VStack(alignment: .leading, spacing: 4) {
                                 Text(article.title)
                                     .font(.headline)
@@ -72,7 +76,13 @@ struct ArticlesList<Content: View>: View {
                                     .lineLimit(2)
                                     .truncationMode(.tail)
 
-                                HStack {
+                                HStack(alignment: .center, spacing: 1) {
+                                    if article.isBookmarked {
+                                        Image(systemName: "star.fill")
+                                            .foregroundColor(.yellow)
+                                            .font(.system(size: 13))
+                                    }
+
                                     Text(article.label.capitalized)
                                         .font(.caption)
                                         .foregroundColor(article.labelColor)
@@ -87,6 +97,7 @@ struct ArticlesList<Content: View>: View {
                                 }
                             }
                         }
+                        .opacity(article.isRead ? 0.5 : 1.0)
                         .padding(.vertical, 4)
                     }
                     .swipeActions(edge: .trailing, allowsFullSwipe: true) {
@@ -98,6 +109,38 @@ struct ArticlesList<Content: View>: View {
                             }
                         } label: {
                             Label("Delete", systemImage: "trash")
+                        }
+                    }
+                    .swipeActions(edge: .leading, allowsFullSwipe: false) {
+                        Button {
+                            Task {
+                                try database.write { db in
+                                    var article = article  // Create a mutable copy
+                                    article.isBookmarked.toggle()
+                                    try Article.update(article).execute(db)
+                                }
+                            }
+                        } label: {
+                            Label(
+                                article.isBookmarked ? "Unbookmark" : "Bookmark",
+                                systemImage: "star"
+                            )
+                        }
+                        .tint(article.isBookmarked ? .gray : .yellow)
+
+                        Button {
+                            Task {
+                                try database.write { db in
+                                    var article = article  // Create a mutable copy
+                                    article.isRead.toggle()
+                                    try Article.update(article).execute(db)
+                                }
+                            }
+                        } label: {
+                            Label(
+                                article.isRead ? "Unread" : "Read",
+                                systemImage: article.isRead ? "eye.slash" : "eye"
+                            )
                         }
                     }
                 }
@@ -134,6 +177,36 @@ struct ArticlesList<Content: View>: View {
     }
 
     @ViewBuilder
+    func articleThumbnail(article: Article) -> some View {
+        if let imageURL = article.imageURL, !imageURL.isEmpty {
+            AsyncImage(url: URL(string: imageURL)) { image in
+                image
+                    .resizable()
+                    .aspectRatio(contentMode: .fill)
+                    .frame(width: ThumbnailSize, height: ThumbnailSize)
+                    .clipped()
+                    .cornerRadius(8)
+            } placeholder: {
+                fallbackThumbnail()
+            }
+        } else {
+            fallbackThumbnail()
+        }
+    }
+
+    @ViewBuilder
+    func fallbackThumbnail() -> some View {
+        RoundedRectangle(cornerRadius: 8)
+            .fill(Color.gray.opacity(0.4))
+            .frame(width: ThumbnailSize, height: ThumbnailSize)
+            .overlay(
+                Image(systemName: "newspaper")
+                    .foregroundStyle(.white.opacity(0.6))
+                    .font(.system(size: 24))
+            )
+    }
+
+    @ViewBuilder
     func emptyView() -> some View {
         VStack {
             Spacer()
@@ -155,7 +228,7 @@ struct ArticlesList<Content: View>: View {
 
     @ViewBuilder func publishDateView(article: Article) -> some View {
         if let publishedAt = article.publishedAt {
-            Text(publishedAt, style: .date)
+            Text(publishedAt.timeAgoDisplay())
                 .font(.caption)
                 .foregroundColor(.secondary)
         }
@@ -164,7 +237,9 @@ struct ArticlesList<Content: View>: View {
     func sortArticles(_ articles: [Article]) -> [Article] {
         switch orderBy {
         case let .title(direction):
-            return articles.sorted { direction == .ascending ? $0.title < $1.title : $0.title > $1.title }
+            return articles.sorted {
+                direction == .ascending ? $0.title < $1.title : $0.title > $1.title
+            }
         case let .createdAt(direction):
             if direction == .ascending {
                 return articles.sorted { $0.createdAt ?? Date() < $1.createdAt ?? Date() }
@@ -178,7 +253,9 @@ struct ArticlesList<Content: View>: View {
                 return articles.sorted { $0.publishedAt ?? Date() > $1.publishedAt ?? Date() }
             }
         case let .label(direction):
-            return articles.sorted { direction == .ascending ? $0.label < $1.label : $0.label > $1.label }
+            return articles.sorted {
+                direction == .ascending ? $0.label < $1.label : $0.label > $1.label
+            }
         }
     }
 }

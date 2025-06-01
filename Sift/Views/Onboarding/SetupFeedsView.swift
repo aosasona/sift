@@ -1,6 +1,3 @@
-import AlertToast
-import Dependencies
-import FeedKit
 //
 //  SetupFeedsView.swift
 //  Sift
@@ -9,6 +6,10 @@ import FeedKit
 //
 import Foundation
 import SwiftUI
+
+import AlertToast
+import Dependencies
+import FeedKit
 
 let ImageSize: CGFloat = 28
 
@@ -56,7 +57,7 @@ struct SetupFeedsView: View {
                 url: "https://fasterthanli.me/index.xml",
                 description: "amos likes to tinker",
                 imageURL:
-                    "https://cdn.fasterthanli.me/content/img/logo-square-2~d615b662ee99387f.w900.webp"
+                "https://cdn.fasterthanli.me/content/img/logo-square-2~d615b662ee99387f.w900.webp"
             ),
             ParsedFeed(
                 title: "Jason Fried",
@@ -112,7 +113,7 @@ struct SetupFeedsView: View {
                         Task {
                             let result = await loadFeed(url: currentFeedURL)
                             switch result {
-                            case .success(let parsedFeed):
+                            case let .success(parsedFeed):
                                 if let parsedFeed = parsedFeed {
                                     withAnimation {
                                         feeds.append(parsedFeed)
@@ -123,7 +124,7 @@ struct SetupFeedsView: View {
                                     toastState.message = "The feed URL you entered is invalid."
                                     toastState.showToast = true
                                 }
-                            case .failure(let error):
+                            case let .failure(error):
                                 toastState.title = "Error"
                                 toastState.message = error.localizedDescription
                                 toastState.showToast = true
@@ -206,7 +207,7 @@ struct SetupFeedsView: View {
             .padding(.bottom, 10)
         }
         .toast(isPresenting: $toastState.showToast) {
-            AlertToast(type: .error(.red), title: toastState.title, subTitle: toastState.message, )
+            AlertToast(type: .error(.red), title: toastState.title, subTitle: toastState.message)
         }
         .task {
             #if DEBUG
@@ -286,12 +287,12 @@ struct SetupFeedsView: View {
                 for feed in feeds {
                     try db.execute(
                         sql: """
-                            INSERT INTO feeds (title, url, description, icon, addedAt) VALUES (?, ?, ?, ?, ?)
-                            ON CONFLICT(url) DO UPDATE SET
-                                title = excluded.title,
-                                description = excluded.description,
-                                icon = excluded.icon
-                            """,
+                        INSERT INTO feeds (title, url, description, icon, addedAt) VALUES (?, ?, ?, ?, ?)
+                        ON CONFLICT(url) DO UPDATE SET
+                            title = excluded.title,
+                            description = excluded.description,
+                            icon = excluded.icon
+                        """,
                         arguments: [
                             feed.title, feed.url, feed.description ?? "", feed.imageURL ?? "",
                             Date(),
@@ -310,12 +311,12 @@ struct SetupFeedsView: View {
         for feedURL in defaultFeeds {
             let feed = await loadFeed(url: feedURL)
             switch feed {
-            case .success(let parsedFeed):
+            case let .success(parsedFeed):
                 if let parsedFeed = parsedFeed {
                     recommendedFeeds.append(parsedFeed)
                 }
 
-            case .failure(let error):
+            case let .failure(error):
                 Log.withScope("SetupFeedsView").error("Failed to load feed: \(error)")
                 continue
             }
@@ -323,7 +324,6 @@ struct SetupFeedsView: View {
 
         hasLoadedRecommendedFeeds = true
     }
-
 }
 
 #Preview {

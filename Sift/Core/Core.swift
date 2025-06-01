@@ -7,30 +7,53 @@
 import Foundation
 import Shared
 
-enum CoreError: Error {
-    case rawError(String)
+public struct ExtractedContent {
+    let title: String
+    let author: String
+    let htmlContent: String
+    let textContent: String
+    let markdownContent: String
+    let length: Int
+    let excerpt: String
+    let siteName: String
+    let image: String
+    let favicon: String
+    let language: String
+    let publishedAt: Date?
+    let modifiedAt: Date?
 }
 
-struct ExtractedContent {
-//    Title           string
-//    Author          string
-//    HTMLContent     string
-//    TextContent     string
-//    MarkdownContent string
-//    Length          int
-//    Excerpt         string
-//    SiteName        string
-//    Image           string
-//    Favicon         string
-//    Language        string
-//    PublishedAt     *string // ISO 8601 format
-//    ModifiedAt      *string // ISO 8601 format
-}
-
-class Core {
+public class Core {
     public static func extractUrlContent(url: String) -> Result<ExtractedContent, CoreError> {
-        let error: NSErrorPointer = nil
+        do {
+            let result = try unwrapCoreError { Shared.CoreExtractURLContent(url, $0) }
+            guard let content = result else {
+                return .failure(CoreError.nilPointer)
+            }
 
-        Shared.CoreExtractURLContent(url, error)
+            let extractedContent = ExtractedContent(
+                title: content.title,
+                author: content.author,
+                htmlContent: content.htmlContent,
+                textContent: content.textContent,
+                markdownContent: content.markdownContent,
+                length: content.length,
+                excerpt: content.excerpt,
+                siteName: content.siteName,
+                image: content.image,
+                favicon: content.favicon,
+                language: content.language,
+                publishedAt: content.publishedAt > 0
+                    ? Date(timeIntervalSince1970: TimeInterval(content.publishedAt)) : nil,
+                modifiedAt: content.modifiedAt > 0
+                    ? Date(timeIntervalSince1970: TimeInterval(content.modifiedAt)) : nil
+            )
+
+            return .success(extractedContent)
+        } catch let error as CoreError {
+            return .failure(error)
+        } catch {
+            return .failure(.raw(error))
+        }
     }
 }

@@ -10,9 +10,11 @@ import SwiftUI
 
 struct SettingsView: View {
     @Dependency(\.defaultDatabase) private var database
-    
+
     @AppStorage(AppStorageKey.colorScheme.rawValue) private var preferredColorScheme: String =
         PreferredColorScheme.system.rawValue
+
+    @State private var showResetConfirmation = false
 
     var body: some View {
         NavigationStack {
@@ -32,11 +34,11 @@ struct SettingsView: View {
 
                 Section {
                     NavigationLink(destination: PreferredTopicsView()) {
-                        Label("Preferred Topics", systemImage: "star")
+                        Label("Topics", systemImage: "star")
                     }
 
                     NavigationLink(destination: FollowedFeedsView()) {
-                        Label("Followed Feeds", systemImage: "newspaper")
+                        Label("Feeds", systemImage: "newspaper")
                     }
                 } header: {
                     Text("Personalization")
@@ -44,13 +46,7 @@ struct SettingsView: View {
 
                 Section {
                     Button(action: {
-                        // Reset the onboarding state
-                        UserDefaults.standard.set(
-                            false,
-                            forKey: AppStorageKey.hasCompletedOnboarding.rawValue
-                        )
-
-                        resetDatabase()
+                        showResetConfirmation = true
                     }) {
                         Label("Reset application", systemImage: "arrow.clockwise")
                             .foregroundColor(.red)
@@ -60,6 +56,22 @@ struct SettingsView: View {
                 }
             }
             .navigationTitle("Settings")
+            .confirmationDialog(
+                "Are you sure you want to reset the application?",
+                isPresented: $showResetConfirmation,
+                titleVisibility: .visible
+            ) {
+                Button("Reset", role: .destructive) {
+                    // Reset the onboarding state
+                    UserDefaults.standard.set(
+                        false,
+                        forKey: AppStorageKey.hasCompletedOnboarding.rawValue
+                    )
+
+                    resetDatabase()
+                }
+                Button("Cancel", role: .cancel) {}
+            }
         }
     }
 
