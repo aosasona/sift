@@ -3,5 +3,8 @@ go = "1.24.3"
 
 [tasks."build:core"]
 description = "Build xcframework for iOS using gomobile"
-run = "gomobile bind -o ../Sift/Shared.xcframework -target=ios,iossimulator -ldflags=-w ."
+run = [
+	"go get golang.org/x/mobile/cmd/gomobile",                                            # `go mod tidy` keeps removing gomobile
+	"gomobile bind -o ../Sift/Shared.xcframework -target=ios,iossimulator -ldflags=-w .",
+]
 dir = "./core"
