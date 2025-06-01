@@ -1,7 +1,9 @@
 package core
 
 import (
-	"context"
+	"fmt"
+	"net/http"
+	"net/url"
 	"time"
 
 	htmltomarkdown "github.com/JohannesKaufmann/html-to-markdown/v2"
@@ -25,17 +27,23 @@ type Article struct {
 	ModifiedAt      int64 // Unix timestamp
 }
 
-func ExtractURLContent(url string) (*Article, error) {
-	ctx := context.Background()
-
-	article, err := readability.FromURL(url, 30*time.Second)
+func ExtractURLContent(link string) (*Article, error) {
+	article, err := readability.FromURL(link, 30*time.Second, func(req *http.Request) {
+		req.Header.Set(
+			"User-Agent",
+			"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.1 Safari/605.1.15",
+		)
+	})
 	if err != nil {
 		return &Article{}, err
 	}
 
+	parsedUrl, _ := url.Parse(link)
+	baseUrl := fmt.Sprintf("%s://%s", parsedUrl.Scheme, parsedUrl.Host)
+
 	markdown, err := htmltomarkdown.ConvertString(
 		article.Content,
-		converter.WithContext(ctx),
+		converter.WithDomain(baseUrl),
 	)
 	if err != nil {
 		return &Article{}, err
