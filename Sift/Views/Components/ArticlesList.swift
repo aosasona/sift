@@ -58,6 +58,8 @@ struct ArticlesList<Content: View>: View {
                         articles.filter { article in
                             searchText.isEmpty
                                 || article.title.localizedCaseInsensitiveContains(searchText)
+                                || article.summary?.localizedCaseInsensitiveContains(searchText) == true
+                                || article.author?.localizedCaseInsensitiveContains(searchText) == true
                         }
                     )
                 ) { article in
@@ -134,7 +136,7 @@ struct ArticlesList<Content: View>: View {
                     .swipeActions(edge: .trailing, allowsFullSwipe: true) {
                         Button(role: .destructive) {
                             Task {
-                                try database.write { db in
+                                try await database.write { db in
                                     try Article.delete(article).execute(db)
                                 }
                             }
@@ -145,7 +147,7 @@ struct ArticlesList<Content: View>: View {
                     .swipeActions(edge: .leading, allowsFullSwipe: false) {
                         Button {
                             Task {
-                                try database.write { db in
+                                try await database.write { db in
                                     var article = article  // Create a mutable copy
                                     article.isBookmarked.toggle()
                                     try Article.update(article).execute(db)
@@ -161,7 +163,7 @@ struct ArticlesList<Content: View>: View {
 
                         Button {
                             Task {
-                                try database.write { db in
+                                try await database.write { db in
                                     var article = article  // Create a mutable copy
                                     article.isRead.toggle()
                                     try Article.update(article).execute(db)

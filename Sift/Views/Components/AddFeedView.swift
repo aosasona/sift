@@ -37,7 +37,7 @@ struct AddFeedView: View {
                                     case .success(let parsedFeed):
                                         if let parsedFeed = parsedFeed {
                                             feedURL = ""
-                                            addFeed(parsedFeed)
+                                            await addFeed(parsedFeed)
                                         } else {
                                             toastState.title = "Invalid Feed"
                                             toastState.message =
@@ -73,10 +73,10 @@ struct AddFeedView: View {
         }
     }
 
-    private func addFeed(_ feed: ParsedFeed) {
-        withErrorReporting {
+    private func addFeed(_ feed: ParsedFeed) async {
+        await withErrorReporting {
             do {
-                try database.write { db in
+                try await database.write { db in
                     let record = Feed(
                         title: feed.title,
                         url: feed.url,

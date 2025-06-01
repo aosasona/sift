@@ -39,23 +39,11 @@ struct ArticleView: View {
                 // Display the article content in reader mode
                 if let md = article.markdownContent {
                     ScrollView {
-                        if let imageURL = article.imageURL, !imageURL.isEmpty {
-                            if let thumbnail = URL(string: imageURL) {
-                                AsyncImage(url: thumbnail) { image in
-                                    image
-                                        .resizable()
-                                        .aspectRatio(contentMode: .fill)
-                                        .frame(height: 200)
-                                        .clipped()
-                                } placeholder: {
-                                    ProgressView()
-                                        .frame(height: 200)
-                                }
-                            }
-                        }
-
                         Markdown(md)
+                            .markdownTheme(.basic)
+                            .tint(.accent)
                             .padding()
+                            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
                     }
                 } else {
                     Text("No content available for this article")
